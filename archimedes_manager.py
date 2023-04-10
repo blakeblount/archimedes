@@ -20,11 +20,9 @@ class ArchimedesManager:
 
     def initialize_pattern_work_order_tool(self):
         pattern_work_order_manager = PWOM.PatternWorkOrderManager(self.archimedes_gui.root, PatternWorkOrderForm, self.config)
-        pattern_work_order_form = self.archimedes_gui.open_pattern_work_order_form()
 
     def initialize_pattern_receipt_tool(self):
         pattern_receipt_manager = PRM.PatternReceiptManager(self.archimedes_gui.root, PatternReceiptForm, self.config)
-        pattern_receipt_form = self.archimedes_gui.open_pattern_receipt_form()
 
     def initialize_shop_copy_tool(self):
         shop_copy_manager = SCM.ShopCopyManager(self.archimedes_gui.root, ShopCopyForm, self.config)

@@ -14,7 +14,7 @@ class PatternWorkOrderForm():
         self.top.geometry("305x285")
         self.top.resizable(False, False)
 
-        self.create_pattern_work_order_callback = create_pattern_work_order_callbac
+        self.create_pattern_work_order_callback = create_pattern_work_order_callback
 
         self.create_widgets()
 
@@ -73,7 +73,7 @@ class PatternWorkOrderForm():
         ttk.Button(self.top, text="Create Pattern Work Order", command=self.create_pattern_work_order_callback).grid(row=8, column=1, padx=5, pady=5, sticky="e")
 
     def get_user_inputs(self):
-        user_input = {
+        user_inputs = {
             "pattern_maker": self.pattern_maker_var.get(),
             "orderer": self.orderer_var.get(),
             "part_name": self.part_name_var.get(),
@@ -84,7 +84,7 @@ class PatternWorkOrderForm():
             "notes": self.notes_var.get()
         }
 
-        return user_input
+        return user_inputs
 
     def alert_success(self):
         tk.messagebox.showinfo("Success", "Pattern Work Order created successfully")

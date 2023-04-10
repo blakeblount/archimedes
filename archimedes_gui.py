@@ -31,8 +31,8 @@ class ArchimedesGUI:
         self.shop_copy_form_button.pack(padx=10, pady=3)
         self.tasks_form.pack(padx=10, pady=3)
 
-    def open_pattern_work_order_form(self):
-        pattern_work_order_form = PatternWorkOrderForm(self.root)
+    def open_pattern_work_order_form(self, pattern_work_order_form):
+        pattern_work_order_form = PatternWorkOrderForm(self.root, pattern_work_order_manager)
         self.root.wait_window(pattern_work_order_form.top)
         return pattern_work_order_form
 
