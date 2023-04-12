@@ -1,0 +1,31 @@
+{
+    "file_paths": {
+        "pattern_work_order_template_file": "<full_path_to_PWO_template>",
+        "pattern_work_order_Word_folder": "<full_path_to_PWO_word_folder>",
+        "pattern_work_order_PDF_folder": "<full_path_to_PWO_pdf_folder>",
+        
+        "pattern_receipt_template_file": "<full_path_to_PR_template>",
+        "pattern_receipt_Word_folder": "<full_path_to_PR_word_folder>",
+        "pattern_receipt_PDF_folder": "<full_path_to_PR_pdf_folder>",
+
+        "drawings_folder": "<full_path_to_drawings_folder>",
+
+        "engineering_log_book_file": "<full_path_to_log_book>"
+    },
+    "personal_email_settings": {
+        "smtp_server": "<your_email_server",
+        "smtp_port": "<your_email_port>",
+        "personal_email_address": "<your_personal_email_address",
+        "personal_email_token": "<your_email_token>"
+    },
+    "jira_settings": {
+        "jira_base_url": "<your_jira_base_url>",
+        "jira_username": "<your_jira_username>",
+        "jira_api_token": "<your_jira_api_token>"
+    },
+    "outgoing_email_addresses": {
+        "purchasing_email_address": "<value>",
+        "intertool_email_address": "<value>",
+        "pro_pattern_email_address": "<value>"
+    }
+}
