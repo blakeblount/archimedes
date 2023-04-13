@@ -1,0 +1,8 @@
+comtypes.client
+docx
+openpyxl
+jira
+pdf2image
+pillow
+img2pdf
+pytesseract
