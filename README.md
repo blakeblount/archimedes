@@ -18,13 +18,15 @@ Archimedes is a management tool designed to automate the creation and processing
 
 ```bash
 pip install -r requirements.txt
+```
 
 ## Usage
 
 1. Open your terminal or command prompt and navigate to the project directory.
 2. Run the following command to start the application:
-'''bash
+```bash
 python main.py
+```
 3. The application GUI will appear. Fill in the required fields and click the relevant buttons to create the desired document.
 
 ## Dependencies
