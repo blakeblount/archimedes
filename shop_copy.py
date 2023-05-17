@@ -22,8 +22,7 @@ class ShopCopy:
     def get_order_filename(self):
         return self.order_file
 
-    def get_shop_copy_data_from_file(self):
-        #customer_order_
+    def query_customer_order_table(self):
         pass
 
     def organize_shop_copy_data(self):
@@ -106,9 +105,9 @@ class ShopCopy:
             qty_x = job_left + (3 * job_width) + 20
             qty_y = qty_top - (job_height / 2)
 
-            draw.text((job_x, job_y), job_text, font=font, fill=(255, 0, 0))
-            draw.text((item_x, item_y), item_text, font=font, fill=(255, 0, 0))
-            draw.text((qty_x, qty_y), qty_text, font=font, fill=(255, 0, 0))
+            draw.text((job_x, job_y), job_text, font=font)
+            draw.text((item_x, item_y), item_text, font=font)
+            draw.text((qty_x, qty_y), qty_text, font=font)
 
             modified_image_path = []
             output_pdf_path = f"modified_{os.path.basename(drawing_filename)}"
