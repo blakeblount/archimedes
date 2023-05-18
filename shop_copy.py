@@ -95,7 +95,8 @@ class ShopCopy:
             item_str = "Item(s)"
             qty_str = "Qty."
 
-            # The OCR returns a dictionary with headings for the word found, and then location, height, and width in pixels.
+            # The OCR returns a dictionary with headings for the word found, and then location, height, and width in
+            # pixels.
             # Establish Job block position
             for i, text in enumerate(ocr_data['text']):
                 if job_str in text:

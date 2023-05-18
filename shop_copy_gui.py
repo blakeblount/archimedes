@@ -10,12 +10,13 @@ class ShopCopyForm:
         #self.top.geometry("305x70")
         #self.top.resizable(False, False)
 
+        # Assign callbacks
         self.organize_shop_copy_callback = organize_shop_copy_callback
         self.print_shop_copy_callback = print_shop_copy_callback
 
         self.create_widgets()
 
-    def create_widgets(self):
+    def create_widgets(self):GTC2-0520B 
         # Customer Order Number input
         ttk.Label(self.top, text="Customer Order Number:").grid(row=0, column=0, sticky="w", padx=5, pady=5)
         self.customer_order_number_var = tk.StringVar()
