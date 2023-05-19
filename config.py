@@ -40,16 +40,16 @@ class Config:
 
     # Getter methods for Syteline settings
     def get_server(self):
-        return self.config_data["syteline_settings"]["server"]
+        return self._config_data["syteline_settings"]["server"]
 
     def get_database(self):
-        return self.config_data["syteline_settings"]["database"]
+        return self._config_data["syteline_settings"]["database"]
 
     def get_user_id(self):
-        return self.config_data["syteline_settings"]["user_id"]
+        return self._config_data["syteline_settings"]["user_id"]
 
     def get_user_pwd(self):
-        return self.config_data["syteline_settings"]["user_pwd"]
+        return self._config_data["syteline_settings"]["user_pwd"]
 
     # Getter methods for personal email settings
     def get_smtp_server(self):
