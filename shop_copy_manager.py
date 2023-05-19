@@ -10,7 +10,6 @@ import config
 
 class ShopCopyManager:
     def __init__(self, parent, shop_copy_form, config):
-        self.load_config()
         self.config = config
 
         self.shop_copy_form = shop_copy_form(parent, self.organize_shop_copy, self.print_shop_copy)
@@ -22,6 +21,8 @@ class ShopCopyManager:
         
         # Set number in the model
         self.shop_copy.set_order_number(order_number)
+        print(self.config.get_database())
+        self.shop_copy.query_customer_order_table(self.config.get_database(), self.config.get_server(), self.config.get_user_id(), self.config.get_user_pwd())
         organized_shop_copy_data = self.shop_copy.organize_shop_copy_data()
 
         # Update shop copy form
@@ -30,9 +31,3 @@ class ShopCopyManager:
     def print_shop_copy(self):
         self.shop_copy.print_shop_copy()
 
-    def load_config(self):
-        with open("config.json", "r", encoding="utf-8") as config_file:
-            config = json.load(config_file)
-
-        file_paths = config["file_paths"]
-        self.drawings_path = file_paths["drawings_folder"]

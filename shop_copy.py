@@ -15,6 +15,7 @@ from pdf2image import convert_from_path
 from PIL import Image, ImageDraw, ImageFont
 import img2pdf
 import pytesseract
+import pyodbc
 
 class ShopCopy:
     def __init__(self):
@@ -33,9 +34,48 @@ class ShopCopy:
         # Gets the order number
         return self.order_number
 
-    def query_customer_order_table(self):
+    def query_customer_order_table(self, server, database, username, password):
         # Open connection to SQL database, query table, put data in a list, close connection, return list
-        pass
+
+        # Create connection string
+        conn_str = (
+            r'DRIVER={SQL Server};'
+            r'SERVER=' + server + ';'
+            r'DATABASE=' + database + ';'
+            r'UID=' + username + ';'
+            r'PWD=' + password + ';'
+        )
+
+        # Create connection
+        conn = pyodbc.connect(conn_str)
+
+        # Create cursor
+        cursor = conn.cursor()
+
+        # Define SQL query
+        sql_query = """
+        SELECT coi.co_num AS co_num,
+               coi.co_line AS co_line,
+               coi.qty_ordered AS qty,
+               coi.item AS item 
+        FROM coitem_mst AS coi 
+        WHERE coi.co_num = '     98800' 
+        ORDER BY coi.co_num, coi.item, coi.co_line
+        """
+
+        # Execute SQL query
+        cursor.execute(sql_query)
+
+        # Fetch all rows from query
+        rows = cursor.fetchall()
+        print(rows)
+
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
+
+        # Convert rows to list and return
+        return [list(row) for row in rows]
 
     def organize_shop_copy_data(self):
     # This method acquires the data in list form, and reorganizes it so that duplicate parts are combined.
