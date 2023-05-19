@@ -138,9 +138,9 @@ class ShopCopy:
             qty_y = qty_top - (job_height / 2)
 
             # Draw text on the shop copy drawing
-            draw.text((job_x, job_y), job_text, font=font)
-            draw.text((item_x, item_y), item_text, font=font)
-            draw.text((qty_x, qty_y), qty_text, font=font)
+            draw.text((job_x, job_y), job_text, font=font, fill=(0, 0, 0))
+            draw.text((item_x, item_y), item_text, font=font, fill=(0, 0, 0))
+            draw.text((qty_x, qty_y), qty_text, font=font, fill=(0, 0, 0))
 
             modified_image_path = []
             output_pdf_path = f"modified_{os.path.basename(drawing_filename)}"

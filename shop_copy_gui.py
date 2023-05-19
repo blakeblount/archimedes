@@ -16,7 +16,7 @@ class ShopCopyForm:
 
         self.create_widgets()
 
-    def create_widgets(self):GTC2-0520B 
+    def create_widgets(self): 
         # Customer Order Number input
         ttk.Label(self.top, text="Customer Order Number:").grid(row=0, column=0, sticky="w", padx=5, pady=5)
         self.customer_order_number_var = tk.StringVar()
