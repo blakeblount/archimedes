@@ -77,6 +77,10 @@ class ShopCopy:
         return shop_copy_output_table
 
     def print_shop_copy(self):
+
+        # Create list of marked drawing images to be converted into a PDF shop copy packet
+        modified_image_paths = []
+
         # Iterate through each drawing to be printed
         for i, row in enumerate(self.order_data_table):
             drawing_filename = f"{row[0]}.pdf"
@@ -142,22 +146,22 @@ class ShopCopy:
             draw.text((item_x, item_y), item_text, font=font, fill=(0, 0, 0))
             draw.text((qty_x, qty_y), qty_text, font=font, fill=(0, 0, 0))
 
-            modified_image_path = []
-            output_pdf_path = f"modified_{os.path.basename(drawing_filename)}"
 
             # The below is a less-than-ideal way of saving but I was running into an issue saving directly as a PDF.
             # Save the image to a temporary file
             with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as f:
                 img.save(f, format="PNG")
-                modified_image_path.append(f.name)
+                modified_image_paths.append(f.name)
 
-            # Save the modified images as a PDF
-            with open(output_pdf_path, "wb") as f:
-                f.write(img2pdf.convert(modified_image_path))
+        output_pdf_path = f"CO {self.order_number} SHOP COPY.pdf"
 
-            # Remove temporary image files
-            for path in modified_image_path:
-                os.remove(path)
+        # Save the modified images as a PDF
+        with open(output_pdf_path, "wb") as f:
+            f.write(img2pdf.convert(modified_image_paths))
+
+        # Remove temporary image files
+        for path in modified_image_paths:
+            os.remove(path)
 
 
             
