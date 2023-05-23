@@ -33,77 +33,70 @@ class ShopCopy:
     def get_order_number(self):
         # Gets the order number
         return self.order_number
-
+    
     def query_customer_order_table(self, server, database, username, password):
         # Open connection to SQL database, query table, put data in a list, close connection, return list
 
         # Create connection string
         conn_str = (
-            r'DRIVER={SQL Server};'
+            r'DRIVER=SQL Server;'
             r'SERVER=' + server + ';'
             r'DATABASE=' + database + ';'
             r'UID=' + username + ';'
             r'PWD=' + password + ';'
         )
 
-        # Create connection
-        conn = pyodbc.connect(conn_str)
-
-        # Create cursor
-        cursor = conn.cursor()
-
         # Define SQL query
-        sql_query = """
-        SELECT coi.co_num AS co_num,
-               coi.co_line AS co_line,
-               coi.qty_ordered AS qty,
-               coi.item AS item 
-        FROM coitem_mst AS coi 
-        WHERE coi.co_num = '     98800' 
-        ORDER BY coi.co_num, coi.item, coi.co_line
-        """
+        order_num_padded = '     ' + str(self.order_number)
+        sql_query = (f"SELECT coi.co_line AS co_line, "
+                     f"coi.qty_ordered AS qty, "
+                     f"coi.item AS item "
+                     f"FROM coitem_mst AS coi "
+                     f"WHERE coi.co_num = '{order_num_padded}' "
+                     f"ORDER BY coi.co_line;")
 
-        # Execute SQL query
-        cursor.execute(sql_query)
+        rows = []
+        # Open connection and create cursor
+        with pyodbc.connect(conn_str) as conn:
+            with conn.cursor() as cursor:
+                # Execute SQL query
+                cursor.execute(sql_query)
 
-        # Fetch all rows from query
-        rows = cursor.fetchall()
-        print(rows)
-
-        # Close the cursor and connection
-        cursor.close()
-        conn.close()
+                # Fetch all rows from query
+                rows = cursor.fetchall()
+                for row in rows:
+                    print(int(row[1]))
 
         # Convert rows to list and return
         return [list(row) for row in rows]
 
-    def organize_shop_copy_data(self):
+    def organize_shop_copy_data(self, query_results):
     # This method acquires the data in list form, and reorganizes it so that duplicate parts are combined.
     # Right now, it reads this from a CSV file with dummy data. 
     # Eventually this list will be returned by the query_customer_order_table method.
         
-        # Open CSV file with dummy data (for testing)
-        with open(self.order_file, 'r') as shop_copy_file:
-            reader = csv.reader(shop_copy_file)
-            # Extract and skip over the header
-            header = next(reader)
+#        # Open CSV file with dummy data (for testing)
+ #       with open(self.order_file, 'r') as shop_copy_file:
+  #          reader = csv.reader(shop_copy_file)
+   #         # Extract and skip over the header
+    #        header = next(reader)
             # Read CSV into list where each item in the list is a string containing the contents of each "cell"
-            shop_copy_input_table = [row for row in reader]
+     #       shop_copy_input_table = [row for row in reader]
 
         # Create a dictionary of part numbers where each part number has an associated line item and quantity field.
         part_number_dict = {}
 
         # For each part number, check to see if it's in the list already. If it is, append its line and quantity
         # data to the respective dictionary entries. If it isn't, create a new dictionary entry for the part number.
-        for row in shop_copy_input_table:
+        for row in query_results:
             line_item, quantity, part_number = row
             if part_number in part_number_dict:
-                part_number_dict[part_number]['line_items'].append(line_item)
-                part_number_dict[part_number]['quantities'].append(quantity)
+                part_number_dict[part_number]['line_items'].append(str(line_item))
+                part_number_dict[part_number]['quantities'].append(str(int(quantity)))
             else:
                 part_number_dict[part_number] = {
-                    'line_items': [line_item],
-                    'quantities': [quantity]
+                    'line_items': [str(line_item)],
+                    'quantities': [str(int(quantity))]
                 }
 
         # Convert to a list for ease of displaying in the UI and using in the print_shop_copy method
