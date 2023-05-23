@@ -22,13 +22,11 @@ class ShopCopy:
         # Values for the order number (as string) and for the table of parts, line numbers, 
         # and quantities (as list of strings)
         self.order_number = None
-        self.order_file = None
         self.order_data_table = None
 
     def set_order_number(self, order_number):
         # Sets the order number
         self.order_number = order_number
-        self.order_file = f"{order_number}.csv"
 
     def get_order_number(self):
         # Gets the order number
@@ -64,16 +62,12 @@ class ShopCopy:
 
                 # Fetch all rows from query
                 rows = cursor.fetchall()
-                for row in rows:
-                    print(int(row[1]))
 
         # Convert rows to list and return
         return [list(row) for row in rows]
 
     def organize_shop_copy_data(self, query_results):
-    # This method acquires the data in list form, and reorganizes it so that duplicate parts are combined.
-    # Right now, it reads this from a CSV file with dummy data. 
-    # Eventually this list will be returned by the query_customer_order_table method.
+        # This method acquires the data in list form, and reorganizes it so that duplicate parts are combined.
         
         # Create a dictionary of part numbers where each part number has an associated line item and quantity field.
         part_number_dict = {}
@@ -101,7 +95,7 @@ class ShopCopy:
      
         return shop_copy_output_table
 
-    def print_shop_copy(self):
+    def print_shop_copy(self, drawings_path):
 
         # Create list of marked drawing images to be converted into a PDF shop copy packet
         modified_image_paths = []
@@ -114,8 +108,9 @@ class ShopCopy:
             qty_text = row[2]
            
             img = []
-            if os.path.exists("\\\\sefcordata\\shared\\drawings\\" + drawing_filename):
-                img = convert_from_path("\\\\sefcordata\\shared\\drawings\\" + drawing_filename)
+
+            if os.path.exists(drawings_path + drawing_filename):
+                img = convert_from_path(drawings_path + drawing_filename)
                 print("Drawing found")
             else:
                 print("Drawing not found")
@@ -135,32 +130,29 @@ class ShopCopy:
             # Establish Job block position
             for i, text in enumerate(ocr_data['text']):
                 if job_str in text:
+                    print(f"Found {job_str} at {i}")
                     job_left = ocr_data['left'][i]
                     job_top = ocr_data['top'][i]
                     job_width = ocr_data['width'][i]
                     job_height = ocr_data['height'][i]
-                else:
-                    print("Did not find 'Job'")
 
             # Establish Item block position
             for i, text in enumerate(ocr_data['text']):
                 if item_str in text:
+                    print(f"Found {item_str} at {i}")
                     item_left = ocr_data['left'][i]
                     item_top = ocr_data['top'][i]
                     item_width = ocr_data['width'][i]
                     item_height = ocr_data['height'][i]
-                else:
-                    print("Did not find 'Items(s)'")
 
             # Establish Quantity block position
             for i, text in enumerate(ocr_data['text']):
                 if qty_str in text:
+                    print(f"Found {qty_str} at {i}")
                     qty_left = ocr_data['left'][i]
                     qty_top = ocr_data['top'][i]
                     qty_width = ocr_data['width'][i]
                     qty_height = ocr_data['height'][i]
-                else:
-                    print("Did not find 'Qty.'")
 
             # Create object on which to write data
             draw = ImageDraw.Draw(img)

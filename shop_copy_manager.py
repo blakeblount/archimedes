@@ -28,5 +28,6 @@ class ShopCopyManager:
         self.shop_copy_form.display_shop_copy_data(organized_shop_copy_data)
 
     def print_shop_copy(self):
-        self.shop_copy.print_shop_copy()
+        #drawings_path = self.config.get_drawings_folder
+        self.shop_copy.print_shop_copy(self.config.get_drawings_folder())
 
