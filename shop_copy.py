@@ -75,14 +75,6 @@ class ShopCopy:
     # Right now, it reads this from a CSV file with dummy data. 
     # Eventually this list will be returned by the query_customer_order_table method.
         
-#        # Open CSV file with dummy data (for testing)
- #       with open(self.order_file, 'r') as shop_copy_file:
-  #          reader = csv.reader(shop_copy_file)
-   #         # Extract and skip over the header
-    #        header = next(reader)
-            # Read CSV into list where each item in the list is a string containing the contents of each "cell"
-     #       shop_copy_input_table = [row for row in reader]
-
         # Create a dictionary of part numbers where each part number has an associated line item and quantity field.
         part_number_dict = {}
 
@@ -120,8 +112,14 @@ class ShopCopy:
             job_text = self.order_number
             item_text = row[1]
             qty_text = row[2]
-            
-            img = convert_from_path(drawing_filename)
+           
+            img = []
+            if os.path.exists("\\\\sefcordata\\shared\\drawings\\" + drawing_filename):
+                img = convert_from_path("\\\\sefcordata\\shared\\drawings\\" + drawing_filename)
+                print("Drawing found")
+            else:
+                print("Drawing not found")
+                break
             img = img[0]
 
             # This line is what runs OCR on the part drawing.
@@ -141,6 +139,8 @@ class ShopCopy:
                     job_top = ocr_data['top'][i]
                     job_width = ocr_data['width'][i]
                     job_height = ocr_data['height'][i]
+                else:
+                    print("Did not find 'Job'")
 
             # Establish Item block position
             for i, text in enumerate(ocr_data['text']):
@@ -149,6 +149,8 @@ class ShopCopy:
                     item_top = ocr_data['top'][i]
                     item_width = ocr_data['width'][i]
                     item_height = ocr_data['height'][i]
+                else:
+                    print("Did not find 'Items(s)'")
 
             # Establish Quantity block position
             for i, text in enumerate(ocr_data['text']):
@@ -157,6 +159,8 @@ class ShopCopy:
                     qty_top = ocr_data['top'][i]
                     qty_width = ocr_data['width'][i]
                     qty_height = ocr_data['height'][i]
+                else:
+                    print("Did not find 'Qty.'")
 
             # Create object on which to write data
             draw = ImageDraw.Draw(img)
