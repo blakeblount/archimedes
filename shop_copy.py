@@ -141,10 +141,10 @@ class ShopCopy:
                         job_top = ocr_data['top'][i]
                         job_width = ocr_data['width'][i]
                         job_height = ocr_data['height'][i]
-                        print(f"job l: {job_left}")
-                        print(f"job t: {job_top}")
-                        print(f"job w: {job_width}")
-                        print(f"job h: {job_height}")
+                        # print(f"job l: {job_left}")
+                        # print(f"job t: {job_top}")
+                        # print(f"job w: {job_width}")
+                        # print(f"job h: {job_height}")
 
                 # Establish Item block position
                 for i, text in enumerate(ocr_data['text']):
@@ -153,10 +153,10 @@ class ShopCopy:
                         item_top = ocr_data['top'][i]
                         item_width = ocr_data['width'][i]
                         item_height = ocr_data['height'][i]
-                        print(f"itm l: {item_left}")
-                        print(f"itm t: {item_top}")
-                        print(f"itm w: {item_width}")
-                        print(f"itm h: {item_height}")
+                        # print(f"itm l: {item_left}")
+                        # print(f"itm t: {item_top}")
+                        # print(f"itm w: {item_width}")
+                        # print(f"itm h: {item_height}")
 
                 # Establish Quantity block position
                 for i, text in enumerate(ocr_data['text']):
@@ -165,10 +165,10 @@ class ShopCopy:
                         qty_top = ocr_data['top'][i]
                         qty_width = ocr_data['width'][i]
                         qty_height = ocr_data['height'][i]
-                        print(f"qty l: {qty_left}")
-                        print(f"qty t: {qty_top}")
-                        print(f"qty w: {qty_width}")
-                        print(f"qty h: {qty_height}")
+                        # print(f"qty l: {qty_left}")
+                        # print(f"qty t: {qty_top}")
+                        # print(f"qty w: {qty_width}")
+                        # print(f"qty h: {qty_height}")
 
                 # Create object on which to write data
                 draw = ImageDraw.Draw(img)
@@ -178,27 +178,104 @@ class ShopCopy:
                 # trial-and-error. Ideally, we will test for drawing type (A, B, or C), and have specific values
                 # optimized for each type. For now, these work well enough for all three.
                 if job_left != None:
-                    job_x = job_left + (3 * job_width) + 20
-                    job_y = job_top - (job_height / 2)
+                    if job_left < job_top:
+                        # Block for A drawing based on Job text
+                        job_x = job_left + 220 
+                        job_y = job_top - 4 
 
-                    item_x = job_left + (3 * job_width) + 20
-                    item_y = item_top - (job_height / 2)
+                        item_x = job_x
+                        item_y = job_top + 45 
 
-                    qty_x = job_left + (3 * job_width) + 20
-                    qty_y = qty_top - (job_height / 2)
+                        qty_x = job_x
+                        qty_y = job_top + 100
+                        print("A Type from Job")
+                    elif job_left > 1817:
+                        # Block for B drawing based on Job text
+                        job_x = job_left + 140 
+                        job_y = job_top - 10 
+
+                        item_x = job_x
+                        item_y = job_top + 20 
+
+                        qty_x = job_x
+                        qty_y = job_top + 54 
+                        print("B Type from Job")
+                    else:
+                        # Block for C drawing based on Job text 
+                        job_x = job_left + 140
+                        job_y = job_top - 10
+
+                        item_x = job_x
+                        item_y = job_top + 30
+
+                        qty_x = job_x
+                        qty_y = job_top + 70
+                        print("C Type from Job")
                 elif item_left != None:
-                    job_x = item_left + (2 * item_width)
-                    job_y = item_top - (item_height * 3 / 2)
+                    if item_left < item_top:
+                        job_x = item_left + 220
+                        job_y = item_top - 50
 
-                    item_x = item_left + (2 * item_width)
-                    item_y = item_top - (item_height / 2)
+                        item_x = job_x 
+                        item_y = item_top - 10 
 
-                    qty_x = item_left + (2 * item_width)
-                    qty_y = item_top + (item_height + 20)
+                        qty_x = job_x 
+                        qty_y = item_top + 45 
+                        print("A Type from Item")
+                    elif job_left > 1817:
+                        job_x = item_left + 140 
+                        job_y = item_top - 50
+
+                        item_x = job_x 
+                        item_y = item_top - 18
+
+                        qty_x = job_x
+                        qty_y = item_top + 40
+                        print("B Type from Item")
+                    else:
+                        job_x = 1
+                        job_y = 1
+
+                        item_x = 1
+                        item_y = 1
+
+                        qty_x = 1
+                        qty_y = 1
+                        print("C Type from Item")
                 elif qty_left != None:
-                    pass
+                    if qty_left < qty_top:
+                        job_x = 1 
+                        job_y = 1
+
+                        item_x = 1
+                        item_y = 1
+
+                        qty_x = 1
+                        qty_y = 1
+                        print("A Type from Qty")
+                    elif qty_left > 1817:
+                        job_x = 1 
+                        job_y = 1
+
+                        item_x = 1
+                        item_y = 1
+
+                        qty_x = 1
+                        qty_y = 1
+                        print("B Type from Qty")
+                    else:
+                        job_x = 1
+                        job_y = 1
+
+                        item_x = 1
+                        item_y = 1
+
+                        qty_x = 1
+                        qty_y = 1
+                        print("C Type from Qty")
                 else:
                     print(f"OCR failed for {drawing_filename}.")
+                    continue
 
                 # Draw text on the shop copy drawing
                 draw.text((job_x, job_y), job_text, font=font, fill=(0, 0, 0))
@@ -206,8 +283,7 @@ class ShopCopy:
                 draw.text((qty_x, qty_y), qty_text, font=font, fill=(0, 0, 0))
 
             except Exception as e:
-                print(f"Failed to process drawing {drawing_filename}. Error: {str(e)}")
-
+                print(f"Failed to process {drawing_filename}. Inserting blank drawing. Error: {str(e)}")
 
             # The below is a less-than-ideal way of saving but I was running into an issue saving directly as a PDF.
             # Save the image to a temporary file
@@ -224,6 +300,3 @@ class ShopCopy:
         # Remove temporary image files
         for path in modified_image_paths:
             os.remove(path)
-
-
-            
