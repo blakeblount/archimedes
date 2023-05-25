@@ -103,6 +103,11 @@ class ShopCopy:
         # Iterate through each drawing to be printed
         for i, row in enumerate(self.order_data_table):
             drawing_filename = f"{row[0]}.pdf"
+
+            # Replace '/' with '[' in drawing file names per SEFCOR practice
+            if "/" in drawing_filename:
+                drawing_filename = drawing_filename.replace("/", '[')
+
             job_text = self.order_number
             item_text = row[1]
             qty_text = row[2]
