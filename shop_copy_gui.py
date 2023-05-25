@@ -15,6 +15,9 @@ class ShopCopyForm:
         # Initialize table label list
         self.table_labels = []
 
+        # Selected values for compressions (if applicable)
+        self.selected_compression_sizes = {}
+
         self.create_widgets()
 
     def create_widgets(self): 
@@ -29,7 +32,7 @@ class ShopCopyForm:
         self.print_button = ttk.Button(self.top, text="Print Shop Copy", command=self.print_shop_copy_callback, state=tk.DISABLED)
         self.print_button.grid(row=1, column=1, padx=5, pady=5, sticky="w")
 
-    def display_shop_copy_data(self, shop_copy_data_table):
+    def display_shop_copy_data(self, shop_copy_data_table, compression_list=None):
         # Destroy existing labels
         for label in self.table_labels:
             label.destroy()
@@ -37,8 +40,14 @@ class ShopCopyForm:
         # Reset the list
         self.table_labels = []
 
+        # Reset compression values
+        self.selected_compression_sizes = {}
+
         # Display table headers
-        for column, header in enumerate(["Part Number", "Line Item(s)", "Quantity"]):
+        headers = ["Part Number", "Line Item(s)", "Quantity"]
+        if compression_list is not None:
+            headers.append("Cable Info")
+        for column, header in enumerate(headers):
             table_label = ttk.Label(self.top, text=header)
             table_label.grid(row=2, column=column)
             self.table_labels.append(table_label)
@@ -49,6 +58,11 @@ class ShopCopyForm:
                 table_label = ttk.Label(self.top, text=cell)
                 table_label.grid(row=i + 3, column=j)
                 self.table_labels.append(table_label)
+            if compression_list is not None and row[0] in compression_list:
+                var = tk.StringVar()
+                dropdown = ttk.Combobox(self.top, textvariable=var)
+                dropdown.grid(row=i+3, column = len(row))
+                self.selected_compression_sizes[row[0]] = var
 
         # Make print button active
         self.print_button.config(state=tk.NORMAL)
@@ -60,3 +74,6 @@ class ShopCopyForm:
 
     def get_order_number(self):
         return self.customer_order_number_var.get()
+    
+    def get_selected_compression_sizes(self):
+        return {part_number: var.get() for part_number, var in self.selected_compression_sizes.items()}
