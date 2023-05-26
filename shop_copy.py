@@ -16,6 +16,7 @@ from PIL import Image, ImageDraw, ImageFont
 import img2pdf
 import pytesseract
 import pyodbc
+import openpyxl
 
 class ShopCopy:
     def __init__(self):
@@ -92,8 +93,19 @@ class ShopCopy:
             quantities = ",".join(data['quantities'])
             shop_copy_output_table.append([part_number, line_items, quantities])
             self.order_data_table = shop_copy_output_table
-     
-        return shop_copy_output_table
+     return shop_copy_output_table
+
+    def make_compression_list(self):
+        compression_list = None
+
+        compression_prefixes = ['AL', 'AL2', 'AL3', 'ATCF', 'ATCF2', 'ATCC', 'AS', 'ARS', 'ASPCC', 'QCTHV', 'QCT']
+
+        for part_number in self.order_data_table:
+            prefix, compression_code = part_number.split('-')[0:2]
+            if prefix in compression_prefixes:
+                
+
+        return compression_list
 
     def print_shop_copy(self, drawings_path):
 
