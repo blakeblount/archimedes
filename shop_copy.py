@@ -93,19 +93,85 @@ class ShopCopy:
             quantities = ",".join(data['quantities'])
             shop_copy_output_table.append([part_number, line_items, quantities])
             self.order_data_table = shop_copy_output_table
-     return shop_copy_output_table
+        return shop_copy_output_table
+
+    def extract_conductor_info_from_chart(self):
+        try:
+            wb = openpyxl.load_workbook(r"\\sefcordata\shared\Engineering\Conductor Chart.xlsx")
+            sheet = wb["Code Chart"]
+        except Exception as error:
+            print(f"Could not open Conductor Chart. {error}")
+
+        hex_column_index = None
+        circ_column_index = None
+        size_column_index = None
+        strand_column_index = None
+        type_column_index = None
+
+        for row in sheet.iter_rows(min_row=1, max_row=1):
+            for cell in row:
+                if cell.value == "COMP HEX CODE":
+                    hex_column_index = cell.column
+                elif cell.value == "COMP CD CODE":
+                    circ_column_index = cell.column
+                elif cell.value == "SIZE":
+                    size_column_index = cell.column
+                elif cell.value == "STRAND":
+                    strand_column_index = cell.column
+                elif cell.value == "TYPE":
+                    type_column_index = cell.column
+
+        hex_values = []
+        circ_values = []
+        info_list = []
+
+        for row in sheet.iter_rows(min_row=2):
+            hex_value = ""
+            cell_value = sheet.cell(row=row[0].row, column=hex_column_index).value
+            if cell_value:
+                hex_value += str(cell_value)
+            else:
+                hex_value = ""
+                continue 
+            hex_values.append(hex_value)
+            size = str(sheet.cell(row=row[0].row, column=size_column_index).value)
+            strand = str(sheet.cell(row=row[0].row, column=strand_column_index).value)
+            type_ = str(sheet.cell(row=row[0].row, column=type_column_index).value)
+            if type_ == "ACSR":
+                info_list.append(f"{size} {strand} {type_}")
+            else:
+                info_list.append(f"{size} {type_}")
+
+        result = []
+        for i, hex_value in enumerate(hex_values):
+            result.append(f"Code: {hex_value}")
+            result.extend(info_list[i])
+        print("Hex Vals:")
+        print(hex_values)
+        print("INfo List")
+        print(info_list)
+        print("Result")
+        print(result)
+        return result
 
     def make_compression_list(self):
-        compression_list = None
+        compression_list = {}
 
         compression_prefixes = ['AL', 'AL2', 'AL3', 'ATCF', 'ATCF2', 'ATCC', 'AS', 'ARS', 'ASPCC', 'QCTHV', 'QCT']
 
-        for part_number in self.order_data_table:
+        for row in self.order_data_table:
+            part_number = row[0]
             prefix, compression_code = part_number.split('-')[0:2]
             if prefix in compression_prefixes:
-                
+               compression_list[part_number] = compression_code
 
-        return compression_list
+        if compression_list == None:
+            return None
+        else:
+            print(compression_list)
+            code_chart = self.extract_conductor_info_from_chart()
+          #  for entry in code_chart:
+          #      print(entry)
 
     def print_shop_copy(self, drawings_path):
 
