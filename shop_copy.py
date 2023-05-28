@@ -142,17 +142,13 @@ class ShopCopy:
             else:
                 info_list.append(f"{size} {type_}")
 
-        result = []
-        for i, hex_value in enumerate(hex_values):
-            result.append(f"Code: {hex_value}")
-            result.extend(info_list[i])
-        print("Hex Vals:")
-        print(hex_values)
-        print("INfo List")
-        print(info_list)
-        print("Result")
-        print(result)
-        return result
+        code_chart_dict = {}
+        for code, cable in zip(hex_values, info_list):
+            if code in code_chart_dict:
+                code_chart_dict[code].append(cable)
+            else:
+                code_chart_dict[code] = [cable]
+       return code_chart_dict
 
     def make_compression_list(self):
         compression_list = {}
@@ -168,10 +164,7 @@ class ShopCopy:
         if compression_list == None:
             return None
         else:
-            print(compression_list)
             code_chart = self.extract_conductor_info_from_chart()
-          #  for entry in code_chart:
-          #      print(entry)
 
     def print_shop_copy(self, drawings_path):
 
