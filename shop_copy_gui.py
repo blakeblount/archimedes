@@ -15,6 +15,10 @@ class ShopCopyForm:
         # Initialize table label list
         self.table_labels = []
 
+        # Initialize compression combobox list
+        self.comboboxes = []
+        self.headers = []
+
         # Selected values for compressions (if applicable)
         self.selected_compression_sizes = {}
 
@@ -33,12 +37,18 @@ class ShopCopyForm:
         self.print_button.grid(row=1, column=1, padx=5, pady=5, sticky="w")
 
     def display_shop_copy_data(self, shop_copy_data_table, compression_list, comp_code_chart):
-        # Destroy existing labels
+        # Destroy existing labels and comboboxes
         for label in self.table_labels:
             label.destroy()
+        for combobox in self.comboboxes:
+            combobox.destroy()
+        for header in self.headers:
+            header.destroy()
 
-        # Reset the list
+        # Reset the lists
         self.table_labels = []
+        self.comboboxes = []
+        self.headers = []
 
         # Reset compression values
         self.selected_compression_sizes = {}
@@ -48,9 +58,9 @@ class ShopCopyForm:
         if compression_list is not None:
             headers.append("Cable Info")
         for column, header in enumerate(headers):
-            table_label = ttk.Label(self.top, text=header)
-            table_label.grid(row=2, column=column)
-            self.table_labels.append(table_label)
+            table_header = ttk.Label(self.top, text=header)
+            table_header.grid(row=2, column=column)
+            self.headers.append(table_header)
 
         # Populate data table
         for i, row in enumerate(shop_copy_data_table):
@@ -61,7 +71,9 @@ class ShopCopyForm:
             if compression_list is not None and row[0] in compression_list:
                 var = tk.StringVar()
                 dropdown = ttk.Combobox(self.top, textvariable=var)
+                dropdown['values'] = comp_code_chart[compression_list[row[0]]]
                 dropdown.grid(row=i+3, column = len(row))
+                self.comboboxes.append(dropdown)
                 self.selected_compression_sizes[row[0]] = var
 
         # Make print button active

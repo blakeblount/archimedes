@@ -27,9 +27,11 @@ class ShopCopyManager:
         self.shop_copy.make_compression_list()
 
         # Update shop copy form
-        self.shop_copy_form.display_shop_copy_data(organized_shop_copy_data, self.shop_copy.get_compression_list, self.shop_copy.get_comp_code_chart)
+        self.shop_copy_form.display_shop_copy_data(organized_shop_copy_data, self.shop_copy.get_compression_list(), self.shop_copy.get_comp_code_chart())
 
     def print_shop_copy(self):
-        #drawings_path = self.config.get_drawings_folder
-        self.shop_copy.print_shop_copy(self.config.get_drawings_folder())
+        drawings_path = self.config.get_drawings_folder()
+
+        compression_list = self.shop_copy_form.get_selected_compression_sizes()
+        self.shop_copy.print_shop_copy(self.config.get_drawings_folder(), compression_list)
 

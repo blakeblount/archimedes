@@ -103,6 +103,9 @@ class ShopCopy:
             quantities = ",".join(data['quantities'])
             shop_copy_output_table.append([part_number, line_items, quantities])
             self.order_data_table = shop_copy_output_table
+
+#        self.compression_list = None
+        
         return shop_copy_output_table
 
     def extract_conductor_info_from_chart(self):
@@ -171,20 +174,19 @@ class ShopCopy:
             if prefix in compression_prefixes:
                compression_list[part_number] = compression_code
 
-        #self.compression_list = compression_list
+        if compression_list:
+            self.compression_list = compression_list
+        else:
+            self.compression_list = None
 
-        if compression_list == None:
+        if not compression_list:
             return None
         else:
             if self.comp_code_chart == None:
                 self.comp_code_chart = self.extract_conductor_info_from_chart()
-
-        for part_number in compression_list:
-
-
         return True
 
-    def print_shop_copy(self, drawings_path):
+    def print_shop_copy(self, drawings_path, compression_list):
 
         # Create list of marked drawing images to be converted into a PDF shop copy packet
         modified_image_paths = []
@@ -195,7 +197,7 @@ class ShopCopy:
             job_text = self.order_number
             item_text = row[1]
             qty_text = row[2]
-           
+
             img = []
 
             if os.path.exists(drawings_path + drawing_filename):
@@ -370,6 +372,11 @@ class ShopCopy:
                 draw.text((job_x, job_y), job_text, font=font, fill=(0, 0, 0))
                 draw.text((item_x, item_y), item_text, font=font, fill=(0, 0, 0))
                 draw.text((qty_x, qty_y), qty_text, font=font, fill=(0, 0, 0))
+
+                if row[0] in compression_list:
+                    font = ImageFont.truetype("arial.ttf", size=70)
+                    draw.text((300, 300), compression_list[row[0]], font=font, fill=(0, 0, 0))
+
 
             except Exception as e:
                 print(f"Failed to process {drawing_filename}. Inserting blank drawing. Error: {str(e)}")
