@@ -24,6 +24,8 @@ class ShopCopy:
         # and quantities (as list of strings)
         self.order_number = None
         self.order_data_table = None
+        self.compression_list = None
+        self.comp_code_chart = None
 
     def set_order_number(self, order_number):
         # Sets the order number
@@ -32,6 +34,14 @@ class ShopCopy:
     def get_order_number(self):
         # Gets the order number
         return self.order_number
+
+    def get_compression_list(self):
+        # Gets the list of compression parts
+        return self.compression_list
+
+    def get_comp_code_chart(self):
+        # Gets the compression code chart
+        return self.comp_code_chart
     
     def query_customer_order_table(self, server, database, username, password):
         # Open connection to SQL database, query table, put data in a list, close connection, return list
@@ -148,7 +158,7 @@ class ShopCopy:
                 code_chart_dict[code].append(cable)
             else:
                 code_chart_dict[code] = [cable]
-       return code_chart_dict
+        return code_chart_dict
 
     def make_compression_list(self):
         compression_list = {}
@@ -161,10 +171,18 @@ class ShopCopy:
             if prefix in compression_prefixes:
                compression_list[part_number] = compression_code
 
+        #self.compression_list = compression_list
+
         if compression_list == None:
             return None
         else:
-            code_chart = self.extract_conductor_info_from_chart()
+            if self.comp_code_chart == None:
+                self.comp_code_chart = self.extract_conductor_info_from_chart()
+
+        for part_number in compression_list:
+
+
+        return True
 
     def print_shop_copy(self, drawings_path):
 

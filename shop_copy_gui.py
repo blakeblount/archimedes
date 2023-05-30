@@ -32,7 +32,7 @@ class ShopCopyForm:
         self.print_button = ttk.Button(self.top, text="Print Shop Copy", command=self.print_shop_copy_callback, state=tk.DISABLED)
         self.print_button.grid(row=1, column=1, padx=5, pady=5, sticky="w")
 
-    def display_shop_copy_data(self, shop_copy_data_table, compression_list=None):
+    def display_shop_copy_data(self, shop_copy_data_table, compression_list, comp_code_chart):
         # Destroy existing labels
         for label in self.table_labels:
             label.destroy()
