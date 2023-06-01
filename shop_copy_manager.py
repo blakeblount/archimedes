@@ -33,5 +33,7 @@ class ShopCopyManager:
         drawings_path = self.config.get_drawings_folder()
 
         compression_list = self.shop_copy_form.get_selected_compression_sizes()
+        for part_number, cable in compression_list.items():
+            print(part_number, cable)
         self.shop_copy.print_shop_copy(self.config.get_drawings_folder(), compression_list)
 

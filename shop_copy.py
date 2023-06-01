@@ -12,7 +12,7 @@ import os
 import csv
 import tempfile
 from pdf2image import convert_from_path
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 import img2pdf
 import pytesseract
 import pyodbc
@@ -104,8 +104,6 @@ class ShopCopy:
             shop_copy_output_table.append([part_number, line_items, quantities])
             self.order_data_table = shop_copy_output_table
 
-#        self.compression_list = None
-        
         return shop_copy_output_table
 
     def extract_conductor_info_from_chart(self):
@@ -136,8 +134,10 @@ class ShopCopy:
 
         hex_values = []
         circ_values = []
-        info_list = []
-
+        hex_info_list = []
+        circ_info_list = []
+        
+        # Hex die values
         for row in sheet.iter_rows(min_row=2):
             hex_value = ""
             cell_value = sheet.cell(row=row[0].row, column=hex_column_index).value
@@ -150,29 +150,67 @@ class ShopCopy:
             size = str(sheet.cell(row=row[0].row, column=size_column_index).value)
             strand = str(sheet.cell(row=row[0].row, column=strand_column_index).value)
             type_ = str(sheet.cell(row=row[0].row, column=type_column_index).value)
-            if type_ == "ACSR":
-                info_list.append(f"{size} {strand} {type_}")
+            if type_ == "ACSR" or type_ == "ACAR":
+                hex_info_list.append(f"{size} {strand} {type_}")
             else:
-                info_list.append(f"{size} {type_}")
+                hex_info_list.append(f"{size} {type_}")
+
+        # Circular die values
+        for row in sheet.iter_rows(min_row=2):
+            circ_value = ""
+            cell_value = sheet.cell(row=row[0].row, column=circ_column_index).value
+            if cell_value:
+                circ_value += str(cell_value)
+            else:
+                circ_value = ""
+                continue 
+            circ_values.append(circ_value)
+            size = str(sheet.cell(row=row[0].row, column=size_column_index).value)
+            strand = str(sheet.cell(row=row[0].row, column=strand_column_index).value)
+            type_ = str(sheet.cell(row=row[0].row, column=type_column_index).value)
+            if type_ == "ACSR" or type_ == "ACAR":
+                circ_info_list.append(f"{size} {strand} {type_}")
+            else:
+                circ_info_list.append(f"{size} {type_}")
 
         code_chart_dict = {}
-        for code, cable in zip(hex_values, info_list):
+
+        for code, cable in zip(hex_values, hex_info_list):
             if code in code_chart_dict:
-                code_chart_dict[code].append(cable)
+                if cable in code_chart_dict[code]:
+                    continue
+                else:
+                    code_chart_dict[code].append(cable)
             else:
                 code_chart_dict[code] = [cable]
+
+        for code, cable in zip(circ_values, circ_info_list):
+            if code in code_chart_dict:
+                if cable in code_chart_dict[code]:
+                    continue
+                else:
+                    code_chart_dict[code].append(cable)
+            else:
+                code_chart_dict[code] = [cable]
+
         return code_chart_dict
 
     def make_compression_list(self):
         compression_list = {}
 
-        compression_prefixes = ['AL', 'AL2', 'AL3', 'ATCF', 'ATCF2', 'ATCC', 'AS', 'ARS', 'ASPCC', 'QCTHV', 'QCT']
+        compression_prefixes = ['AL', 'AL2', 'AL3', 'ATCF', 'ATCF2', 'ATCC', 'AS', 'ARS', 'ASPCC', 'QCTHV', 'QCT', 'CL', 'CL2', 'CTCF', 'CTCC', 'CS']
+
+        double_code_prefixes = ['ATCC', 'AS', 'CTCC', 'CS']
 
         for row in self.order_data_table:
             part_number = row[0]
             prefix, compression_code = part_number.split('-')[0:2]
             if prefix in compression_prefixes:
-               compression_list[part_number] = compression_code
+                if prefix in double_code_prefixes:
+                   tap_code = part_number.split('-')[2:3][0]
+                   compression_list[part_number] = [compression_code.lstrip('0'), tap_code.lstrip('0')]
+                else: 
+                   compression_list[part_number] = compression_code.lstrip('0')
 
         if compression_list:
             self.compression_list = compression_list
@@ -197,6 +235,10 @@ class ShopCopy:
             job_text = self.order_number
             item_text = row[1]
             qty_text = row[2]
+
+            quantities = qty_text.split(",")
+            if "0" in quantities:
+                continue
 
             img = []
 
@@ -304,6 +346,7 @@ class ShopCopy:
                         print("C Type from Job")
                 elif item_left != None:
                     if item_left < item_top:
+                        # Block for A drawing based on Item text
                         job_x = item_left + 220
                         job_y = item_top - 50
 
@@ -314,6 +357,7 @@ class ShopCopy:
                         qty_y = item_top + 45 
                         print("A Type from Item")
                     elif job_left > 1817:
+                        # Block for B drawing based on Item text (not tuned)
                         job_x = item_left + 140 
                         job_y = item_top - 50
 
@@ -324,6 +368,7 @@ class ShopCopy:
                         qty_y = item_top + 40
                         print("B Type from Item")
                     else:
+                        # Block for C drawing based on Item text (not tuned)
                         job_x = 1
                         job_y = 1
 
@@ -335,16 +380,18 @@ class ShopCopy:
                         print("C Type from Item")
                 elif qty_left != None:
                     if qty_left < qty_top:
-                        job_x = 1 
-                        job_y = 1
+                        # Block for A drawing based on Item text
+                        job_x = qty_left + 220
+                        job_y = qty_top - 100
 
-                        item_x = 1
-                        item_y = 1
+                        item_x = job_x
+                        item_y = qty_top - 45
 
-                        qty_x = 1
-                        qty_y = 1
+                        qty_x = job_x
+                        qty_y = qty_top
                         print("A Type from Qty")
                     elif qty_left > 1817:
+                        # Block for B drawing based on Item text (not tuned)
                         job_x = 1 
                         job_y = 1
 
@@ -355,6 +402,7 @@ class ShopCopy:
                         qty_y = 1
                         print("B Type from Qty")
                     else:
+                        # Block for C drawing based on Item text (not tuned)
                         job_x = 1
                         job_y = 1
 
@@ -365,6 +413,9 @@ class ShopCopy:
                         qty_y = 1
                         print("C Type from Qty")
                 else:
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as f:
+                        img.save(f, format="PNG")
+                        modified_image_paths.append(f.name)
                     print(f"OCR failed for {drawing_filename}.")
                     continue
 
@@ -374,9 +425,34 @@ class ShopCopy:
                 draw.text((qty_x, qty_y), qty_text, font=font, fill=(0, 0, 0))
 
                 if row[0] in compression_list:
-                    font = ImageFont.truetype("arial.ttf", size=70)
-                    draw.text((300, 300), compression_list[row[0]], font=font, fill=(0, 0, 0))
+                    #font = ImageFont.truetype("arial.ttf", size=70)
+                    #draw.text((300, 300), compression_list[row[0]], font=font, fill=(0, 0, 0))
 
+                    # Create a new image with transparent background to store the rotated text.
+                    text_img = Image.new('RGBA', img.size, (255, 255, 255, 0))
+
+                    font = ImageFont.truetype("arial.ttf", size=70)
+                    text_draw = ImageDraw.Draw(text_img)
+
+                    # Draw the text onto the text image.
+                    if type(compression_list[row[0]]) == str:
+                        text_draw.text((300, 300), compression_list[row[0]], font=font, fill=(0, 0, 0))
+                    elif type(compression_list[row[0]]) == list:
+                        text_draw.text((300, 300), "RUN: " + compression_list[row[0]][0], font=font, fill=(0, 0, 0))
+                        text_draw.text((300, 400), "TAP: " + compression_list[row[0]][1], font=font, fill=(0, 0, 0))
+
+                    # Rotate the text image.
+                    rotated_text_img = text_img.rotate(30, expand=1)
+
+                    # Create a new image to store the result.
+                    result_img = Image.new('RGBA', img.size)
+
+                    # Paste the original image and the rotated text into the result image.
+                    result_img.paste(img, (0,0))
+                    result_img.paste(rotated_text_img, (0,0), mask=rotated_text_img)
+
+                    # Replace the original image with the result image.
+                    img = result_img.convert('RGB')
 
             except Exception as e:
                 print(f"Failed to process {drawing_filename}. Inserting blank drawing. Error: {str(e)}")
@@ -386,8 +462,14 @@ class ShopCopy:
             with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as f:
                 img.save(f, format="PNG")
                 modified_image_paths.append(f.name)
+        
+        output_directory = "~\\Shop Copies\\"
+        output_directory = os.path.expanduser(output_directory)
 
-        output_pdf_path = f"CO {self.order_number} SHOP COPY.pdf"
+        if not os.path.exists(output_directory):
+            os.makedirs(output_directory)
+
+        output_pdf_path = output_directory + f"CO {self.order_number} SHOP COPY.pdf"
 
         # Save the modified images as a PDF
         with open(output_pdf_path, "wb") as f:
