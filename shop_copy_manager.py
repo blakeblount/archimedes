@@ -20,7 +20,12 @@ class ShopCopyManager:
         order_number = self.shop_copy_form.get_order_number()
         
         # Set number in the model
-        self.shop_copy.set_order_number(order_number)
+        if len(order_number) == 5:
+            self.shop_copy.set_order_number(order_number)
+        else:
+#            print("Customer Ordern Number entered incorrectly.")
+            return False
+        
         query_results = self.shop_copy.query_customer_order_table(self.config.get_server(), self.config.get_database(), self.config.get_user_id(), self.config.get_user_pwd())
         organized_shop_copy_data = self.shop_copy.organize_shop_copy_data(query_results)
 
@@ -33,7 +38,5 @@ class ShopCopyManager:
         drawings_path = self.config.get_drawings_folder()
 
         compression_list = self.shop_copy_form.get_selected_compression_sizes()
-        for part_number, cable in compression_list.items():
-            print(part_number, cable)
         self.shop_copy.print_shop_copy(self.config.get_drawings_folder(), compression_list)
 

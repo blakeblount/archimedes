@@ -44,7 +44,7 @@ class ShopCopyForm:
         # Customer Order Number input
         ttk.Label(self.top, text="Customer Order Number:").grid(row=0, column=0, sticky="w", padx=5, pady=5)
         self.customer_order_number_var = tk.StringVar()
-        ttk.Entry(self.top, textvariable=self.customer_order_number_var).grid(row=0, column=1, sticky="ew", padx=5, pady=5)
+        ttk.Entry(self.top, textvariable=self.customer_order_number_var).grid(row=0, column=1, sticky="w", padx=5, pady=5)
 
         # Create Organize and Print buttons
         self.organize_button = ttk.Button(self.top, text="Organize Shop Copy", command=self.organize_shop_copy_callback)
@@ -59,39 +59,6 @@ class ShopCopyForm:
         # Configure column and row weights so the canvas expands to fill space
         self.top.grid_columnconfigure(0, weight=1)
         self.top.grid_rowconfigure(2, weight=1)
-
-#class ShopCopyForm:
-#    def __init__(self, parent, organize_shop_copy_callback, print_shop_copy_callback):
-#        self.top = tk.Toplevel(parent)
-#        self.top.title("Shop Copy Form")
-#
-#        # Assign callbacks
-#        self.organize_shop_copy_callback = organize_shop_copy_callback
-#        self.print_shop_copy_callback = print_shop_copy_callback
-#
-#        # Initialize table label list
-#        self.table_labels = []
-#
-#        # Initialize compression combobox list
-#        self.comboboxes = []
-#        self.headers = []
-#
-#        # Selected values for compressions (if applicable)
-#        self.selected_compression_sizes = {}
-#
-#        self.create_widgets()
-#
-#    def create_widgets(self): 
-#        # Customer Order Number input
-#        ttk.Label(self.top, text="Customer Order Number:").grid(row=0, column=0, sticky="w", padx=5, pady=5)
-#        self.customer_order_number_var = tk.StringVar()
-#        ttk.Entry(self.top, textvariable=self.customer_order_number_var).grid(row=0, column=1, sticky="ew", padx=5, pady=5)
-#
-#        # Create Organize and Print buttons
-#        self.organize_button = ttk.Button(self.top, text="Organize Shop Copy", command=self.organize_shop_copy_callback)
-#        self.organize_button.grid(row=1, column=0, padx=5, pady=5, sticky="w")
-#        self.print_button = ttk.Button(self.top, text="Print Shop Copy", command=self.print_shop_copy_callback, state=tk.DISABLED)
-#        self.print_button.grid(row=1, column=1, padx=5, pady=5, sticky="w")
 
     def display_shop_copy_data(self, shop_copy_data_table, compression_list, comp_code_chart):
         # Destroy existing labels and comboboxes
@@ -118,22 +85,18 @@ class ShopCopyForm:
             if is_list:
                 headers.append("Tap Cable Info")
         for column, header in enumerate(headers):
-#            table_header = ttk.Label(self.top, text=header)
-
             table_header = ttk.Label(self.scrollable_frame, text=header)
-            table_header.grid(row=2, column=column)
+            table_header.grid(row=2, column=column, padx=3, pady=3)
             self.headers.append(table_header)
 
         # Populate data table
         for i, row in enumerate(shop_copy_data_table):
             for j, cell in enumerate(row):
-              #  table_label = ttk.Label(self.top, text=cell)
                 table_label = ttk.Label(self.scrollable_frame, text=cell)
                 table_label.grid(row=i + 3, column=j)
                 self.table_labels.append(table_label)
             if compression_list is not None and row[0] in compression_list:
                 var = tk.StringVar()
-               # dropdown = ttk.Combobox(self.top, textvariable=var)
                 dropdown = ttk.Combobox(self.scrollable_frame, textvariable=var)
                 if isinstance(compression_list[row[0]], list):
                     dropdown['values'] = comp_code_chart[compression_list[row[0]][0]]
@@ -145,7 +108,6 @@ class ShopCopyForm:
 
                 if isinstance(compression_list[row[0]], list):
                     var_tap = tk.StringVar()
-                   # dropdown_tap = ttk.Combobox(self.top, textvariable=var_tap)
                     dropdown_tap = ttk.Combobox(self.scrollable_frame, textvariable=var_tap)
                     dropdown_tap['values'] = comp_code_chart[compression_list[row[0]][1]]
                     dropdown_tap.grid(row=i+3, column=len(row)+1)
@@ -188,5 +150,3 @@ class ShopCopyForm:
                 else:
                     result[part_number] = value
         return result
-#    def get_selected_compression_sizes(self):
-#        return {part_number: var.get() for part_number, var in self.selected_compression_sizes.items()}
