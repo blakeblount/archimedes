@@ -1,4 +1,6 @@
 import json
+import os
+import sys
 
 class Config:
     _instance = None
@@ -10,7 +12,18 @@ class Config:
         return cls._instance
 
     def _initialize_config(self):
-        with open("config.json", "r") as config_file:
+
+        # Check if we're running in a PyInstaller bundle
+        if getattr(sys, 'frozen', False):
+            bundle_dir = sys._MEIPASS
+        else:
+            bundle_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # The json file is in the same directory as this script
+        json_path = os.path.join(bundle_dir, 'config.json')
+
+        # Now use json_path to load the json file
+        with open(json_path, 'r') as config_file:
             self._config_data = json.load(config_file)
 
     # Getter methods for file paths
