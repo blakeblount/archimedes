@@ -27,6 +27,7 @@ if getattr(sys, 'frozen', False):
     bundle_dir = sys._MEIPASS
 else:
     bundle_dir = os.path.dirname(os.path.abspath(__file__))
+    bundle_dir = os.path.join(bundle_dir, 'Tesseract-OCR')
 
 # The tessdata directory is in the same directory as this script
 tessdata_dir_path = bundle_dir

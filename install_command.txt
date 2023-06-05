@@ -1,0 +1,1 @@
+pyinstaller --add-data 'config.json;.' --add-data 'Poppler\poppler-0.68.0\bin;.\Poppler\poppler-0.68.0\bin' --add-data 'Tesseract-OCR;.' --onefile --name Archimedes archimedes.py
