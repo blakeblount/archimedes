@@ -38,6 +38,10 @@ class ShopCopyForm:
         # Selected values for compressions (if applicable)
         self.selected_compression_sizes = {}
 
+        # Initialize progress bar
+        self.progress_var = tk.DoubleVar()
+        self.progress_bar = ttk.Progressbar(self.top, length=200, mode='determinate', variable=self.progress_var)
+
         self.create_widgets()
 
     def create_widgets(self): 
@@ -56,6 +60,9 @@ class ShopCopyForm:
         self.canvas.grid(row=2, column=0, columnspan=2, sticky='nsew') # Changed from pack() to grid()
         self.scrollbar.grid(row=2, column=2, sticky='ns') # Changed from pack() to grid()
 
+        # Create and pack the progress bar
+        self.progress_bar.grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky='ew')
+
         # Configure column and row weights so the canvas expands to fill space
         self.top.grid_columnconfigure(0, weight=1)
         self.top.grid_rowconfigure(2, weight=1)
@@ -68,6 +75,8 @@ class ShopCopyForm:
             combobox.destroy()
         for header in self.headers:
             header.destroy()
+
+        self.update_progress_bar(0)
 
         # Reset the lists
         self.table_labels = []
@@ -152,4 +161,5 @@ class ShopCopyForm:
         return result
 
     def update_progress_bar(self, progress):
-        print(progress)
+        self.progress_var.set(progress)
+        self.top.update_idletasks()

@@ -44,3 +44,4 @@ class ShopCopyManager:
 
     def update_progress(self, progress):
         self.shop_copy_form.update_progress_bar(progress)
+

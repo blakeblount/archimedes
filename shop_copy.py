@@ -276,6 +276,8 @@ class ShopCopy:
                 print(f"Drawing {i + 1} of {len(self.order_data_table)} ({drawing_filename}) not found")
                 continue
 
+            progress = round((i + 1) / len(self.order_data_table) * 100)
+
             img = img[0]
 
             try:
@@ -490,8 +492,6 @@ class ShopCopy:
             with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as f:
                 img.save(f, format="PNG")
                 modified_image_paths.append(f.name)
-
-            progress = (i + 1)   # / len(self.order_data_table) * 100
 
             if self.progress_callback is not None:
                 self.progress_callback(progress)
