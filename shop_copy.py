@@ -45,6 +45,7 @@ class ShopCopy:
         self.order_data_table = None
         self.compression_list = None
         self.comp_code_chart = None
+        self.progress_callback = None
 
     def set_order_number(self, order_number):
         # Sets the order number
@@ -489,6 +490,11 @@ class ShopCopy:
             with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as f:
                 img.save(f, format="PNG")
                 modified_image_paths.append(f.name)
+
+            progress = (i + 1) / len(self.order_data_table) * 100
+
+            if self.progress_callback is not None:
+                self.progress_callback(progress)
         
         output_directory = "~\\Shop Copies\\"
         output_directory = os.path.expanduser(output_directory)
@@ -505,3 +511,6 @@ class ShopCopy:
         # Remove temporary image files
         for path in modified_image_paths:
             os.remove(path)
+
+    def set_progress_callback(self, callback):
+        self.progress_callback = callback

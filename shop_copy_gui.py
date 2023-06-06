@@ -150,3 +150,6 @@ class ShopCopyForm:
                 else:
                     result[part_number] = value
         return result
+
+    def update_progress_bar(self, progress):
+        print(progress)

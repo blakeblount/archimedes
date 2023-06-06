@@ -14,6 +14,8 @@ class ShopCopyManager:
 
         self.shop_copy_form = shop_copy_form(parent, self.organize_shop_copy, self.print_shop_copy)
         self.shop_copy = SC.ShopCopy()
+       
+        self.shop_copy.set_progress_callback(self.update_progress)
 
     def organize_shop_copy(self):
         # Get number from GUI
@@ -40,3 +42,5 @@ class ShopCopyManager:
         compression_list = self.shop_copy_form.get_selected_compression_sizes()
         self.shop_copy.print_shop_copy(self.config.get_drawings_folder(), compression_list)
 
+    def update_progress(self, progress):
+        self.shop_copy_form.update_progress_bar(progress)
