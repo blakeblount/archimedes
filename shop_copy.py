@@ -382,7 +382,7 @@ class ShopCopy:
                         qty_x = job_x 
                         qty_y = item_top + 45 
                         print("A Type from Item")
-                    elif job_left > 1817:
+                    elif item_left > 1817:
                         # Block for B drawing based on Item text (not tuned)
                         job_x = item_left + 140 
                         job_y = item_top - 50
@@ -505,3 +505,5 @@ class ShopCopy:
         # Remove temporary image files
         for path in modified_image_paths:
             os.remove(path)
+
+        os.startfile(output_pdf_path)
