@@ -383,7 +383,7 @@ class ShopCopy:
                         qty_x = job_x 
                         qty_y = item_top + 45 
                         print("A Type from Item")
-                    elif job_left > 1817:
+                    elif item_left > 1817:
                         # Block for B drawing based on Item text (not tuned)
                         job_x = item_left + 140 
                         job_y = item_top - 50
@@ -491,7 +491,7 @@ class ShopCopy:
                 img.save(f, format="PNG")
                 modified_image_paths.append(f.name)
 
-            progress = (i + 1) / len(self.order_data_table) * 100
+            progress = (i + 1)   # / len(self.order_data_table) * 100
 
             if self.progress_callback is not None:
                 self.progress_callback(progress)
