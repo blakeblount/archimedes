@@ -512,9 +512,7 @@ class ShopCopy:
         for path in modified_image_paths:
             os.remove(path)
 
-<<<<<<< HEAD
         os.startfile(output_pdf_path)
-=======
+        
     def set_progress_callback(self, callback):
         self.progress_callback = callback
->>>>>>> progressbar
