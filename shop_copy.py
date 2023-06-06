@@ -45,6 +45,7 @@ class ShopCopy:
         self.order_data_table = None
         self.compression_list = None
         self.comp_code_chart = None
+        self.progress_callback = None
 
     def set_order_number(self, order_number):
         # Sets the order number
@@ -275,6 +276,8 @@ class ShopCopy:
                 print(f"Drawing {i + 1} of {len(self.order_data_table)} ({drawing_filename}) not found")
                 continue
 
+            progress = round((i + 1) / len(self.order_data_table) * 100)
+
             img = img[0]
 
             try:
@@ -489,6 +492,9 @@ class ShopCopy:
             with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as f:
                 img.save(f, format="PNG")
                 modified_image_paths.append(f.name)
+
+            if self.progress_callback is not None:
+                self.progress_callback(progress)
         
         output_directory = "~\\Shop Copies\\"
         output_directory = os.path.expanduser(output_directory)
@@ -506,4 +512,9 @@ class ShopCopy:
         for path in modified_image_paths:
             os.remove(path)
 
+<<<<<<< HEAD
         os.startfile(output_pdf_path)
+=======
+    def set_progress_callback(self, callback):
+        self.progress_callback = callback
+>>>>>>> progressbar
