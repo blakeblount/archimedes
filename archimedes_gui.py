@@ -15,6 +15,7 @@ class ArchimedesGUI:
         self.root.title('Archimedes')
         self.root.geometry("235x40")
         self.root.resizable(False, False)
+        self.root.iconbitmap('archimedes.ico')
 
         self.create_widgets()
 

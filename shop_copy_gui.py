@@ -8,6 +8,7 @@ class ShopCopyForm:
     def __init__(self, parent, organize_shop_copy_callback, print_shop_copy_callback):
         self.top = tk.Toplevel(parent)
         self.top.title("Shop Copy Form")
+        self.top.iconbitmap('archimedes.ico')
 
         # Create a canvas and a scrollbar and connect them
         self.canvas = tk.Canvas(self.top)

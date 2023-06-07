@@ -86,13 +86,16 @@ class ShopCopy:
 
         rows = []
         # Open connection and create cursor
-        with pyodbc.connect(conn_str) as conn:
-            with conn.cursor() as cursor:
-                # Execute SQL query
-                cursor.execute(sql_query)
+        try:
+            with pyodbc.connect(conn_str) as conn:
+                with conn.cursor() as cursor:
+                    # Execute SQL query
+                    cursor.execute(sql_query)
 
-                # Fetch all rows from query
-                rows = cursor.fetchall()
+                    # Fetch all rows from query
+                    rows = cursor.fetchall()
+        except Exception as error:
+            print(f"Unable to query SQL database.\nError: {error}")
 
         # Convert rows to list and return
         return [list(row) for row in rows]
@@ -253,7 +256,7 @@ class ShopCopy:
 
         # Iterate through each drawing to be printed
         for i, row in enumerate(self.order_data_table):
-            drawing_filename = f"{row[0]}.pdf"
+            drawing_filename = f"{row[0].rstrip(' ')}.pdf"
 
             # Replace '/' with '[' in drawing file names per SEFCOR practice
             if "/" in drawing_filename:
@@ -442,9 +445,12 @@ class ShopCopy:
                         qty_y = 1
                         print("C Type from Qty")
                 else:
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as f:
-                        img.save(f, format="PNG")
-                        modified_image_paths.append(f.name)
+                    try:
+                        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as f:
+                            img.save(f, format="PNG")
+                            modified_image_paths.append(f.name)
+                    except Exception as error:
+                        print(f'Unable to print blank {f.name} to stack.\nError: {error}')
                     print(f"OCR failed for {drawing_filename}.")
                     continue
 
