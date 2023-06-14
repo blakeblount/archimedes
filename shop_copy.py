@@ -100,6 +100,26 @@ class ShopCopy:
         # Convert rows to list and return
         return [list(row) for row in rows]
 
+    def retrieve_drawings_packages(self, shop_copy_dict):
+
+        conn_str = (r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};"r"DBQ=C:\\Users\\bblount\\Documents\\Drawing Packages.accdb;") 
+
+        query = """
+                SELECT *
+                From [Drawing Packages];
+                """
+
+        try:
+            with pyodbc.connect(conn_str) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(query)
+                    rows = cursor.fetchall()
+        except Exception as error:
+            print(f"Unable to query drawing database.\nError: {error}")
+
+        for row in rows:
+            print(row)
+
     def organize_shop_copy_data(self, query_results):
         # This method acquires the data in list form, and reorganizes it so that duplicate parts are combined.
         
