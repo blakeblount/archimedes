@@ -63,6 +63,31 @@ class ShopCopy:
         # Gets the compression code chart
         return self.comp_code_chart
     
+    def build_drawing_packages(self, part_num, line_num, qty, conn):
+        query = f"""
+            SELECT *
+            FROM [Drawing Packages]
+            WHERE [Part Number] = '{part_num}';
+            """
+
+        cursor = conn.execute(query)
+        rows = cursor.fetchall()
+
+        root_drawing = [part_num, line_num, qty]
+
+        if len(rows) == 1:
+            return [root_drawing]
+        else:
+            drawing_list = [root_drawing]
+            
+            for row in rows[1:]:
+                sub_part_num = row[1]
+                sub_qty = int(row[2]) * qty
+                sub_drawing = self.build_drawing_packages(sub_part_num, line_num, sub_qty, conn)
+                drawing_list += sub_drawing
+
+            return drawing_list
+
     def query_customer_order_table(self, server, database, username, password):
         # Open connection to SQL database, query table, put data in a list, close connection, return list
 
@@ -77,9 +102,9 @@ class ShopCopy:
 
         # Define SQL query
         order_num_padded = '     ' + str(self.order_number)
-        sql_query = (f"SELECT coi.co_line AS co_line, "
-                     f"coi.qty_ordered AS qty, "
-                     f"coi.item AS item "
+        sql_query = (f"SELECT coi.item AS item, "
+                     f"coi.co_line AS co_line, "
+                     f"coi.qty_ordered AS qty "
                      f"FROM coitem_mst AS coi "
                      f"WHERE coi.co_num = '{order_num_padded}' "
                      f"ORDER BY coi.co_line;")
@@ -98,39 +123,30 @@ class ShopCopy:
             print(f"Unable to query SQL database.\nError: {error}")
 
         # Convert rows to list and return
-        return [list(row) for row in rows]
+        query_results = [list(row) for row in rows]
 
-    def retrieve_drawings_packages(self, shop_copy_dict):
+        drawing_conn_str = (r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};"r"DBQ=C:\\Users\\bblount\\Documents\\Drawing Packages.accdb;") 
+        with pyodbc.connect(drawing_conn_str) as drawing_conn:
+            drawing_package = []
+            for row in query_results:
+                part_number, line_item, quantity = row
+                drawings = self.build_drawing_packages(part_number, line_item, quantity, drawing_conn)
+                drawing_package += drawings
 
-        conn_str = (r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};"r"DBQ=C:\\Users\\bblount\\Documents\\Drawing Packages.accdb;") 
-
-        query = """
-                SELECT *
-                From [Drawing Packages];
-                """
-
-        try:
-            with pyodbc.connect(conn_str) as conn:
-                with conn.cursor() as cursor:
-                    cursor.execute(query)
-                    rows = cursor.fetchall()
-        except Exception as error:
-            print(f"Unable to query drawing database.\nError: {error}")
-
-        for row in rows:
-            print(row)
-
+        return drawing_package
+        
     def organize_shop_copy_data(self, query_results):
         # This method acquires the data in list form, and reorganizes it so that duplicate parts are combined.
-        
+
         # Create a dictionary of part numbers where each part number has an associated line item and quantity field.
         part_number_dict = {}
 
         # For each part number, check to see if it's in the list already. If it is, append its line and quantity
         # data to the respective dictionary entries. If it isn't, create a new dictionary entry for the part number.
         for row in query_results:
-            line_item, quantity, part_number = row
-            if part_number == 'EXPEDITE FEE':
+            print(row)
+            part_number, line_item, quantity = row
+            if part_number == ('EXPEDITE FEE' or 'FREIGHT CHARGE'):
                 continue
             if part_number in part_number_dict:
                 part_number_dict[part_number]['line_items'].append(str(line_item))
