@@ -144,7 +144,6 @@ class ShopCopy:
         # For each part number, check to see if it's in the list already. If it is, append its line and quantity
         # data to the respective dictionary entries. If it isn't, create a new dictionary entry for the part number.
         for row in query_results:
-            print(row)
             part_number, line_item, quantity = row
             if part_number == ('EXPEDITE FEE' or 'FREIGHT CHARGE'):
                 continue
