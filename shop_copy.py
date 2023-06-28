@@ -67,7 +67,7 @@ class ShopCopy:
         query = f"""
             SELECT *
             FROM [Drawing Packages]
-            WHERE [Part Number] = '{part_num}';
+            WHERE [Item] = '{part_num}';
             """
 
         cursor = conn.execute(query)
@@ -80,11 +80,14 @@ class ShopCopy:
         else:
             drawing_list = [root_drawing]
             
-            for row in rows[1:]:
-                sub_part_num = row[1]
-                sub_qty = int(row[2]) * qty
-                sub_drawing = self.build_drawing_packages(sub_part_num, line_num, sub_qty, conn)
-                drawing_list += sub_drawing
+            for row in rows:
+                if row[1] == root_drawing[0]:
+                    continue
+                else:
+                    sub_part_num = row[1]
+                    sub_qty = int(row[2]) * qty
+                    sub_drawing = self.build_drawing_packages(sub_part_num, line_num, sub_qty, conn)
+                    drawing_list += sub_drawing
 
             return drawing_list
 
@@ -101,7 +104,14 @@ class ShopCopy:
         )
 
         # Define SQL query
-        order_num_padded = '     ' + str(self.order_number)
+        order_num_padded = (' ' * (10 - len(str(self.order_number)))) + str(self.order_number)
+#        sql_query = (f"SELECT coi.item AS item, "
+#                     f"coi.co_line AS co_line, "
+#                     f"coi.qty_ordered AS qty "
+#                     f"FROM coitem_mst AS coi "
+#                     f"WHERE coi.co_num = '{order_num_padded}' "
+#                     f"ORDER BY coi.co_line;")
+
         sql_query = (f"SELECT coi.item AS item, "
                      f"coi.co_line AS co_line, "
                      f"coi.qty_ordered AS qty "
@@ -125,7 +135,9 @@ class ShopCopy:
         # Convert rows to list and return
         query_results = [list(row) for row in rows]
 
-        drawing_conn_str = (r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};"r"DBQ=C:\\Users\\bblount\\Documents\\Drawing Packages.accdb;") 
+        #drawing_conn_str = (r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};"r"DBQ=C:\\Users\\bblount\\Documents\\Drawing Packages.accdb;") 
+        drawing_conn_str = (r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};"r"DBQ=\\sefcordata\shared\Engineering\ENG Projects\Drawing Packages.accdb;") 
+
         with pyodbc.connect(drawing_conn_str) as drawing_conn:
             drawing_package = []
             for row in query_results:
