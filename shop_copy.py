@@ -145,6 +145,7 @@ class ShopCopy:
             drawing_package = []
             for row in query_results:
                 part_number, line_item, quantity = row
+                part_number = part_number.rstrip(' ')
                 drawings = self.build_drawing_packages(part_number, line_item, quantity, drawing_conn)
                 drawing_package += drawings
 
@@ -160,8 +161,6 @@ class ShopCopy:
         # data to the respective dictionary entries. If it isn't, create a new dictionary entry for the part number.
         for row in query_results:
             part_number, line_item, quantity = row
-#            if part_number == ('EXPEDITE FEE' or 'FREIGHT CHARGE'):
-#                continue
             if part_number in part_number_dict:
                 part_number_dict[part_number]['line_items'].append(str(line_item))
                 part_number_dict[part_number]['quantities'].append(str(int(quantity)))
