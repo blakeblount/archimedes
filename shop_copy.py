@@ -116,7 +116,10 @@ class ShopCopy:
                      f"coi.co_line AS co_line, "
                      f"coi.qty_ordered AS qty "
                      f"FROM coitem_mst AS coi "
+                     f"JOIN item_mst AS i "
+                     f"ON coi.item = i.item "
                      f"WHERE coi.co_num = '{order_num_padded}' "
+                     f"AND i.product_code != 'BOGUS' "
                      f"ORDER BY coi.co_line;")
 
         rows = []
@@ -157,8 +160,8 @@ class ShopCopy:
         # data to the respective dictionary entries. If it isn't, create a new dictionary entry for the part number.
         for row in query_results:
             part_number, line_item, quantity = row
-            if part_number == ('EXPEDITE FEE' or 'FREIGHT CHARGE'):
-                continue
+#            if part_number == ('EXPEDITE FEE' or 'FREIGHT CHARGE'):
+#                continue
             if part_number in part_number_dict:
                 part_number_dict[part_number]['line_items'].append(str(line_item))
                 part_number_dict[part_number]['quantities'].append(str(int(quantity)))
