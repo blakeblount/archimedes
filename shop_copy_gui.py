@@ -49,17 +49,25 @@ class ShopCopyForm:
         # Customer Order Number input
         ttk.Label(self.top, text="Customer Order Number:").grid(row=0, column=0, sticky="w", padx=5, pady=5)
         self.customer_order_number_var = tk.StringVar()
-        ttk.Entry(self.top, textvariable=self.customer_order_number_var).grid(row=0, column=1, sticky="w", padx=5, pady=5)
+        self.customer_order_field = ttk.Entry(self.top, textvariable=self.customer_order_number_var)
+        self.customer_order_field.grid(row=0, column=1, sticky="w", padx=5, pady=5)
+        self.customer_order_field.focus_set()
+        self.customer_order_field.bind('<Return>', self.organize_shop_copy_callback)
 
         # Create Organize and Print buttons
         self.organize_button = ttk.Button(self.top, text="Organize Shop Copy", command=self.organize_shop_copy_callback)
         self.organize_button.grid(row=1, column=0, padx=5, pady=5, sticky="w")
+        self.organize_button.bind('<Return>', self.organize_shop_copy_callback)
         self.print_button = ttk.Button(self.top, text="Print Shop Copy", command=self.print_shop_copy_callback, state=tk.DISABLED)
         self.print_button.grid(row=1, column=1, padx=5, pady=5, sticky="w")
+        self.print_button.bind('<Return>', self.print_shop_copy_callback)
         
         # Pack the canvas and the scrollbar
         self.canvas.grid(row=2, column=0, columnspan=2, sticky='nsew') # Changed from pack() to grid()
         self.scrollbar.grid(row=2, column=2, sticky='ns') # Changed from pack() to grid()
+
+        # Add mouse wheel scrolling
+        self.canvas.bind_all("<MouseWheel>", self.on_mousewheel)
 
         # Create and pack the progress bar
         self.progress_bar.grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky='ew')
@@ -126,6 +134,7 @@ class ShopCopyForm:
 
         # Make print button active
         self.print_button.config(state=tk.NORMAL)
+        self.print_button.focus_set()
 
         # Update window size
         self.top.geometry("")
@@ -164,3 +173,9 @@ class ShopCopyForm:
     def update_progress_bar(self, progress):
         self.progress_var.set(progress)
         self.top.update_idletasks()
+
+    def focus_entry_field(self):
+        self.customer_order_field.focus_set()
+
+    def on_mousewheel(self, event):
+        self.canvas.yview_scroll(-1*(event.delta//120), "units")

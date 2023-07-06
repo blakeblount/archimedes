@@ -509,9 +509,6 @@ class ShopCopy:
                 draw.text((qty_x, qty_y), qty_text, font=font, fill=(0, 0, 0))
 
                 if row[0] in compression_list:
-                    #font = ImageFont.truetype("arial.ttf", size=70)
-                    #draw.text((300, 300), compression_list[row[0]], font=font, fill=(0, 0, 0))
-
                     # Create a new image with transparent background to store the rotated text.
                     text_img = Image.new('RGBA', img.size, (255, 255, 255, 0))
 

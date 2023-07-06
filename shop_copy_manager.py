@@ -17,7 +17,7 @@ class ShopCopyManager:
        
         self.shop_copy.set_progress_callback(self.update_progress)
 
-    def organize_shop_copy(self):
+    def organize_shop_copy(self, event=None):
         # Get number from GUI
         order_number = self.shop_copy_form.get_order_number()
         
@@ -32,11 +32,12 @@ class ShopCopyManager:
         # Update shop copy form
         self.shop_copy_form.display_shop_copy_data(organized_shop_copy_data, self.shop_copy.get_compression_list(), self.shop_copy.get_comp_code_chart())
 
-    def print_shop_copy(self):
+    def print_shop_copy(self, event=None):
         drawings_path = self.config.get_drawings_folder()
 
         compression_list = self.shop_copy_form.get_selected_compression_sizes()
         self.shop_copy.print_shop_copy(self.config.get_drawings_folder(), compression_list)
+        self.shop_copy_form.focus_entry_field()
 
     def update_progress(self, progress):
         self.shop_copy_form.update_progress_bar(progress)
