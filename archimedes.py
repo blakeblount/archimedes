@@ -24,7 +24,7 @@ class ArchimedesManager:
 #    def initialize_pattern_receipt_tool(self):
 #        pattern_receipt_manager = PRM.PatternReceiptManager(self.archimedes_gui.root, PatternReceiptForm, self.config)
 
-    def initialize_shop_copy_tool(self):
+    def initialize_shop_copy_tool(self, event=None):
         shop_copy_manager = SCM.ShopCopyManager(self.archimedes_gui.root, ShopCopyForm, self.config)
 
 #    def initialize_tasks_tool(self):

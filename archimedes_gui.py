@@ -30,6 +30,8 @@ class ArchimedesGUI:
         #self.pattern_work_order_form_button.pack(padx=10, pady=3)
         #self.pattern_receipt_form_button.pack(padx=10, pady=3)
         self.shop_copy_form_button.grid(padx=10, pady=10)
+        self.shop_copy_form_button.bind('<Return>', self.archimedes_manager.initialize_shop_copy_tool)
+        self.shop_copy_form_button.focus_set()
         #self.tasks_form.pack(padx=10, pady=3)
 
 #    def open_pattern_work_order_form(self, pattern_work_order_form):
