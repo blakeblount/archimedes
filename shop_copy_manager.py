@@ -36,8 +36,10 @@ class ShopCopyManager:
         drawings_path = self.config.get_drawings_folder()
 
         compression_list = self.shop_copy_form.get_selected_compression_sizes()
-        self.shop_copy.print_shop_copy(self.config.get_drawings_folder(), compression_list)
+        drawing_not_found_list, unable_to_print_drawing_list = self.shop_copy.print_shop_copy(self.config.get_drawings_folder(), compression_list)
         self.shop_copy_form.focus_entry_field()
+        self.shop_copy_form.display_print_error_message(drawing_not_found_list, unable_to_print_drawing_list)
+        self.shop_copy.reset_error_lists()
 
     def update_progress(self, progress):
         self.shop_copy_form.update_progress_bar(progress)

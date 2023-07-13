@@ -46,6 +46,8 @@ class ShopCopy:
         self.compression_list = None
         self.comp_code_chart = None
         self.progress_callback = None
+        self.drawing_not_found_list = []
+        self.unable_to_print_drawing_list =  []
 
     def set_order_number(self, order_number):
         # Sets the order number
@@ -325,6 +327,7 @@ class ShopCopy:
                 img = convert_from_path(drawings_path + drawing_filename, poppler_path=poppler_path)
                 print(f"Drawing {i + 1} of {len(self.order_data_table)} ({drawing_filename}) found")
             else:
+                self.drawing_not_found_list.append(drawing_filename)
                 print(f"Drawing {i + 1} of {len(self.order_data_table)} ({drawing_filename}) not found")
                 continue
 
@@ -500,6 +503,7 @@ class ShopCopy:
                             modified_image_paths.append(f.name)
                     except Exception as error:
                         print(f'Unable to print blank {f.name} to stack.\nError: {error}')
+                    self.unable_to_print_drawing_list.append(drawing_filename)
                     print(f"OCR failed for {drawing_filename}.")
                     continue
 
@@ -565,6 +569,12 @@ class ShopCopy:
             os.remove(path)
 
         os.startfile(output_pdf_path)
+
+        return [self.drawing_not_found_list, self.unable_to_print_drawing_list]
         
     def set_progress_callback(self, callback):
         self.progress_callback = callback
+
+    def reset_error_lists(self):
+        self.drawing_not_found_list = []
+        self.unable_to_print_drawing_list = []

@@ -1,4 +1,5 @@
 import tkinter as tk
+import tkinter.messagebox as messagebox
 from tkinter import ttk
 
 from shop_copy_manager import ShopCopyManager
@@ -179,3 +180,23 @@ class ShopCopyForm:
 
     def on_mousewheel(self, event):
         self.canvas.yview_scroll(-1*(event.delta//120), "units")
+
+    def display_print_error_message(self, drawing_not_found_list, unable_to_print_drawing_list):
+        if drawing_not_found_list and unable_to_print_drawing_list:
+            error_msg = "Drawing(s) not found:\n"
+            for drawing in drawing_not_found_list:
+                error_msg = error_msg + "- " + f"{drawing}" + "\n"
+            error_msg = error_msg + "\n" + "Unable to print to drawing(s):\n"
+            for drawing in unable_to_print_drawing_list:
+               error_msg = error_msg + "- " + f"{drawing}" + "\n"
+            messagebox.showerror("Error", error_msg)
+        elif drawing_not_found_list and not unable_to_print_drawing_list:
+            error_msg = "Drawing(s) not found:\n"
+            for drawing in drawing_not_found_list:
+                error_msg = error_msg + "- " + f"{drawing}" + "\n"
+            messagebox.showerror("Error", error_msg)
+        elif not drawing_not_found_list and unable_to_print_drawing_list:
+            error_msg = "Unable to print to drawing(s):\n"
+            for drawing in unable_to_print_drawing_list:
+                error_msg = error_msg + "- " + f"{drawing}" + "\n"
+            messagebox.showerror("Error", error_msg)
