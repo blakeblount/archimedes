@@ -189,14 +189,18 @@ class ShopCopyForm:
             error_msg = error_msg + "\n" + "Unable to print to drawing(s):\n"
             for drawing in unable_to_print_drawing_list:
                error_msg = error_msg + "- " + f"{drawing}" + "\n"
+            error_msg = error_msg + "Please take shop copy to an engineer."
             messagebox.showerror("Error", error_msg)
         elif drawing_not_found_list and not unable_to_print_drawing_list:
             error_msg = "Drawing(s) not found:\n"
             for drawing in drawing_not_found_list:
                 error_msg = error_msg + "- " + f"{drawing}" + "\n"
+            error_msg = error_msg + "Please take shop copy to an engineer."
             messagebox.showerror("Error", error_msg)
         elif not drawing_not_found_list and unable_to_print_drawing_list:
             error_msg = "Unable to print to drawing(s):\n"
             for drawing in unable_to_print_drawing_list:
                 error_msg = error_msg + "- " + f"{drawing}" + "\n"
+            error_msg = error_msg + "Please take shop copy to an engineer."
             messagebox.showerror("Error", error_msg)
+        self.customer_order_field.focus_set()
