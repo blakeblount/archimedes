@@ -280,13 +280,14 @@ class ShopCopy:
 
         for row in self.order_data_table:
             part_number = row[0]
-            prefix, compression_code = part_number.split('-')[0:2]
-            if prefix in compression_prefixes:
-                if prefix in double_code_prefixes:
-                   tap_code = part_number.split('-')[2:3][0]
-                   compression_list[part_number] = [compression_code.lstrip('0'), tap_code.lstrip('0')]
-                else: 
-                   compression_list[part_number] = compression_code.lstrip('0')
+            if '-' in part_number:
+                prefix, compression_code = part_number.split('-')[0:2]
+                if prefix in compression_prefixes:
+                    if prefix in double_code_prefixes:
+                       tap_code = part_number.split('-')[2:3][0]
+                       compression_list[part_number] = [compression_code.lstrip('0'), tap_code.lstrip('0')]
+                    else: 
+                       compression_list[part_number] = compression_code.lstrip('0')
 
         if compression_list:
             self.compression_list = compression_list
