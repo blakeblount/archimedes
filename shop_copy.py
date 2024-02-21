@@ -163,6 +163,8 @@ class ShopCopy:
         # data to the respective dictionary entries. If it isn't, create a new dictionary entry for the part number.
         for row in query_results:
             part_number, line_item, quantity = row
+            if quantity == 0:
+                continue
             if part_number in part_number_dict:
                 part_number_dict[part_number]['line_items'].append(str(line_item))
                 part_number_dict[part_number]['quantities'].append(str(int(quantity)))
@@ -278,16 +280,17 @@ class ShopCopy:
 
         double_code_prefixes = ['ATCC', 'AS', 'CTCC', 'CS']
 
-        for row in self.order_data_table:
-            part_number = row[0]
-            if '-' in part_number:
-                prefix, compression_code = part_number.split('-')[0:2]
-                if prefix in compression_prefixes:
-                    if prefix in double_code_prefixes:
-                       tap_code = part_number.split('-')[2:3][0]
-                       compression_list[part_number] = [compression_code.lstrip('0'), tap_code.lstrip('0')]
-                    else: 
-                       compression_list[part_number] = compression_code.lstrip('0')
+        if self.order_data_table is not None:
+            for row in self.order_data_table:
+                part_number = row[0]
+                if '-' in part_number:
+                    prefix, compression_code = part_number.split('-')[0:2]
+                    if prefix in compression_prefixes:
+                        if prefix in double_code_prefixes:
+                            tap_code = part_number.split('-')[2:3][0]
+                            compression_list[part_number] = [compression_code.lstrip('0'), tap_code.lstrip('0')]
+                        else: 
+                            compression_list[part_number] = compression_code.lstrip('0')
 
         if compression_list:
             self.compression_list = compression_list
@@ -301,13 +304,16 @@ class ShopCopy:
                 self.comp_code_chart = self.extract_conductor_info_from_chart()
         return True
 
-    def print_shop_copy(self, drawings_path, compression_list):
+    def print_shop_copy(self, drawings_path, compression_list, print_list):
 
         # Create list of marked drawing images to be converted into a PDF shop copy packet
         modified_image_paths = []
 
         # Iterate through each drawing to be printed
         for i, row in enumerate(self.order_data_table):
+            # Skip drawing if not selected for printing
+            if(print_list[i] is False):
+                continue
             drawing_filename = f"{row[0].rstrip(' ')}.pdf"
 
             # Replace '/' with '[' in drawing file names per SEFCOR practice
@@ -318,9 +324,9 @@ class ShopCopy:
             item_text = row[1]
             qty_text = row[2]
 
-            quantities = qty_text.split(",")
-            if "0" in quantities:
-                continue
+           # quantities = qty_text.split(",")
+           # if "0" in quantities:
+           #     continue
 
             img = []
 

@@ -37,6 +37,10 @@ class ShopCopyForm:
         self.comboboxes = []
         self.headers = []
 
+        # Initialize print checkbox list
+        self.print_checkboxes = []
+        self.print_vars = []
+
         # Selected values for compressions (if applicable)
         self.selected_compression_sizes = {}
 
@@ -92,12 +96,14 @@ class ShopCopyForm:
         self.table_labels = []
         self.comboboxes = []
         self.headers = []
+        self.print_checkboxes = []
+        self.print_vars = []
 
         # Reset compression values
         self.selected_compression_sizes = {}
 
         # Display table headers
-        headers = ["Part Number", "Line Item(s)", "Quantity"]
+        headers = ["Print?", "Part Number", "Line Item(s)", "Quantity"]
         if compression_list is not None:
             headers.append("Cable Info")
             is_list = any(isinstance(v, list) and len(v) == 2 for v in compression_list.values())
@@ -112,8 +118,14 @@ class ShopCopyForm:
         for i, row in enumerate(shop_copy_data_table):
             for j, cell in enumerate(row):
                 table_label = ttk.Label(self.scrollable_frame, text=cell)
-                table_label.grid(row=i + 3, column=j)
+                table_label.grid(row=i + 3, column=j + 1)
                 self.table_labels.append(table_label)
+            # Add checkbox for each row
+            print_var = tk.BooleanVar(value=True) # Default checked
+            print_checkbox = ttk.Checkbutton(self.scrollable_frame, variable=print_var)
+            print_checkbox.grid(row=i +3, column=0)
+            self.print_checkboxes.append(print_checkbox)
+            self.print_vars.append(print_var)
             if compression_list is not None and row[0] in compression_list:
                 var = tk.StringVar()
                 dropdown = ttk.Combobox(self.scrollable_frame, textvariable=var)
@@ -144,6 +156,10 @@ class ShopCopyForm:
 
     def get_order_number(self):
         return self.customer_order_number_var.get()
+
+    def get_print_vars(self):
+        print_list = [var.get() for var in self.print_vars]
+        return print_list
     
     def get_selected_compression_sizes(self):
         result = {}
