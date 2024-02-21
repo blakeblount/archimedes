@@ -390,7 +390,7 @@ class ShopCopy:
 
                 # Create object on which to write data
                 draw = ImageDraw.Draw(img)
-                font = ImageFont.truetype("arial.ttf", size=30)
+                font = ImageFont.truetype("arial.ttf", size=23)
 
                 # Determine start points of text to be inserted. Determining these x and y coordinates just took 
                 # trial-and-error. Ideally, we will test for drawing type (A, B, or C), and have specific values
@@ -454,14 +454,14 @@ class ShopCopy:
                         print("B Type from Item")
                     else:
                         # Block for C drawing based on Item text (not tuned)
-                        job_x = 1
-                        job_y = 1
+                        job_x = item_left + 140
+                        job_y = item_top - 50
 
-                        item_x = 1
-                        item_y = 1
+                        item_x = job_x
+                        item_y = item_top - 18
 
-                        qty_x = 1
-                        qty_y = 1
+                        qty_x = job_x
+                        qty_y = item_top + 40
                         print("C Type from Item")
                 elif qty_left != None:
                     if qty_left < qty_top:
