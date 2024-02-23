@@ -141,7 +141,7 @@ class ShopCopy:
         query_results = [list(row) for row in rows]
 
         #drawing_conn_str = (r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};"r"DBQ=C:\\Users\\bblount\\Documents\\Drawing Packages.accdb;") 
-        drawing_conn_str = (r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};"r"DBQ=\\sefcordata\shared\Engineering\ENG Projects\Drawing Packages.accdb;") 
+        drawing_conn_str = (r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};"r"DBQ=\\sefcordata\shared\Engineering\Archimedes\Drawing Packages.accdb;") 
 
         with pyodbc.connect(drawing_conn_str) as drawing_conn:
             drawing_package = []
@@ -332,10 +332,10 @@ class ShopCopy:
 
             if os.path.exists(drawings_path + drawing_filename):
                 img = convert_from_path(drawings_path + drawing_filename, poppler_path=poppler_path)
-                print(f"Drawing {i + 1} of {len(self.order_data_table)} ({drawing_filename}) found")
+                #print(f"Drawing {i + 1} of {len(self.order_data_table)} ({drawing_filename}) found")
             else:
                 self.drawing_not_found_list.append(drawing_filename)
-                print(f"Drawing {i + 1} of {len(self.order_data_table)} ({drawing_filename}) not found")
+                #print(f"Drawing {i + 1} of {len(self.order_data_table)} ({drawing_filename}) not found")
                 continue
 
             progress = round((i + 1) / len(self.order_data_table) * 100)
@@ -412,7 +412,7 @@ class ShopCopy:
 
                         qty_x = job_x
                         qty_y = job_top + 100
-                        print("A Type from Job")
+                        #print("A Type from Job")
                     elif job_left > 1817:
                         # Block for B drawing based on Job text
                         job_x = job_left + 140 
@@ -423,7 +423,7 @@ class ShopCopy:
 
                         qty_x = job_x
                         qty_y = job_top + 54 
-                        print("B Type from Job")
+                        #print("B Type from Job")
                     else:
                         # Block for C drawing based on Job text 
                         job_x = job_left + 140
@@ -434,7 +434,7 @@ class ShopCopy:
 
                         qty_x = job_x
                         qty_y = job_top + 70
-                        print("C Type from Job")
+                        #print("C Type from Job")
                 elif item_left != None:
                     if item_left < item_top:
                         # Block for A drawing based on Item text
@@ -446,7 +446,7 @@ class ShopCopy:
 
                         qty_x = job_x 
                         qty_y = item_top + 45 
-                        print("A Type from Item")
+                        #print("A Type from Item")
                     elif item_left > 1817:
                         # Block for B drawing based on Item text (not tuned)
                         job_x = item_left + 140 
@@ -457,7 +457,7 @@ class ShopCopy:
 
                         qty_x = job_x
                         qty_y = item_top + 40
-                        print("B Type from Item")
+                        #print("B Type from Item")
                     else:
                         # Block for C drawing based on Item text (not tuned)
                         job_x = item_left + 140
@@ -468,7 +468,7 @@ class ShopCopy:
 
                         qty_x = job_x
                         qty_y = item_top + 40
-                        print("C Type from Item")
+                        #print("C Type from Item")
                 elif qty_left != None:
                     if qty_left < qty_top:
                         # Block for A drawing based on Item text
@@ -480,7 +480,7 @@ class ShopCopy:
 
                         qty_x = job_x
                         qty_y = qty_top
-                        print("A Type from Qty")
+                        #print("A Type from Qty")
                     elif qty_left > 1817:
                         # Block for B drawing based on Item text (not tuned)
                         job_x = 1 
@@ -491,7 +491,7 @@ class ShopCopy:
 
                         qty_x = 1
                         qty_y = 1
-                        print("B Type from Qty")
+                        #print("B Type from Qty")
                     else:
                         # Block for C drawing based on Item text (not tuned)
                         job_x = 1
@@ -502,16 +502,17 @@ class ShopCopy:
 
                         qty_x = 1
                         qty_y = 1
-                        print("C Type from Qty")
+                        #print("C Type from Qty")
                 else:
                     try:
                         with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as f:
                             img.save(f, format="PNG")
                             modified_image_paths.append(f.name)
                     except Exception as error:
-                        print(f'Unable to print blank {f.name} to stack.\nError: {error}')
+                        #print(f'Unable to print blank {f.name} to stack.\nError: {error}')
+                        pass
                     self.unable_to_print_drawing_list.append(drawing_filename)
-                    print(f"OCR failed for {drawing_filename}.")
+                    #print(f"OCR failed for {drawing_filename}.")
                     continue
 
                 # Draw text on the shop copy drawing
@@ -547,7 +548,7 @@ class ShopCopy:
                     img = result_img.convert('RGB')
 
             except Exception as e:
-                print(f"Failed to process {drawing_filename}. Inserting blank drawing. Error: {str(e)}")
+                #print(f"Failed to process {drawing_filename}. Inserting blank drawing. Error: {str(e)}")
                 pass
 
             # The below is a less-than-ideal way of saving but I was running into an issue saving directly as a PDF.

@@ -89,6 +89,8 @@ class ShopCopyForm:
             combobox.destroy()
         for header in self.headers:
             header.destroy()
+        for checkbox in self.print_checkboxes:
+            checkbox.destroy()
 
         self.update_progress_bar(0)
 
@@ -133,7 +135,7 @@ class ShopCopyForm:
                     dropdown['values'] = comp_code_chart[compression_list[row[0]][0]]
                 else:
                     dropdown['values'] = comp_code_chart[compression_list[row[0]]]
-                dropdown.grid(row=i+3, column=len(row))
+                dropdown.grid(row=i+3, column=len(row)+1)
                 self.comboboxes.append(dropdown)
                 self.selected_compression_sizes[row[0]] = var
 
@@ -141,7 +143,7 @@ class ShopCopyForm:
                     var_tap = tk.StringVar()
                     dropdown_tap = ttk.Combobox(self.scrollable_frame, textvariable=var_tap)
                     dropdown_tap['values'] = comp_code_chart[compression_list[row[0]][1]]
-                    dropdown_tap.grid(row=i+3, column=len(row)+1)
+                    dropdown_tap.grid(row=i+3, column=len(row)+2)
                     self.comboboxes.append(dropdown_tap)
                     self.selected_compression_sizes[row[0] + '_tap'] = var_tap
 
