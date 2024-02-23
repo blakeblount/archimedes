@@ -105,15 +105,18 @@ class ShopCopyForm:
         self.selected_compression_sizes = {}
 
         # Display table headers
-        headers = ["Print?", "Part Number", "Line Item(s)", "Quantity"]
+        #headers = ["Print?", "Part Number", "Line Item(s)", "Quantity"]
+        headers = ["Part Number", "Line Item(s)", "Quantity"]
         if compression_list is not None:
             headers.append("Cable Info")
             is_list = any(isinstance(v, list) and len(v) == 2 for v in compression_list.values())
             if is_list:
                 headers.append("Tap Cable Info")
+        self.toggle_print_button = ttk.Button(self.scrollable_frame, text='Print?', command=self.toggle_print_checkboxes)
+        self.toggle_print_button.grid(row=2, column=0, padx=3, pady=3)
         for column, header in enumerate(headers):
             table_header = ttk.Label(self.scrollable_frame, text=header)
-            table_header.grid(row=2, column=column, padx=3, pady=3)
+            table_header.grid(row=2, column=column+1, padx=3, pady=3)
             self.headers.append(table_header)
 
         # Populate data table
@@ -222,3 +225,11 @@ class ShopCopyForm:
             error_msg = error_msg + "Please take shop copy to an engineer."
             messagebox.showerror("Error", error_msg)
         self.customer_order_field.focus_set()
+
+
+    def toggle_print_checkboxes(self):
+        # If any checkbox is unchecked, set all to checked, otherwise set all to unchecked
+        any_unchecked = any(not var.get() for var in self.print_vars)
+        new_state = True if any_unchecked else False
+        for var in self.print_vars:
+            var.set(new_state)
