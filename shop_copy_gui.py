@@ -9,6 +9,7 @@ class ShopCopyForm:
     def __init__(self, parent, organize_shop_copy_callback, print_shop_copy_callback):
         self.top = tk.Toplevel(parent)
         self.top.title("Shop Copy Form")
+        self.top.minsize(600, 200)
 #        self.top.iconbitmap('archimedes.ico')
 
         # Create a canvas and a scrollbar and connect them
@@ -59,27 +60,35 @@ class ShopCopyForm:
         self.customer_order_field.focus_set()
         self.customer_order_field.bind('<Return>', self.organize_shop_copy_callback)
 
-        # Create Organize and Print buttons
+        # Create Organize button
         self.organize_button = ttk.Button(self.top, text="Organize Shop Copy", command=self.organize_shop_copy_callback)
-        self.organize_button.grid(row=1, column=0, padx=5, pady=5, sticky="w")
+        self.organize_button.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
         self.organize_button.bind('<Return>', self.organize_shop_copy_callback)
+
+        # Create Shipped Items Checkbox/Label
+        ttk.Label(self.top, text="Include shipped items?").grid(row=1, column=1, padx=1, pady=5, sticky='w')
+        self.include_shipped_items_var = tk.BooleanVar(value=False)
+        self.include_shipped_items_checkbox = ttk.Checkbutton(self.top, variable=self.include_shipped_items_var)
+        self.include_shipped_items_checkbox.grid(row=1, column=2, padx=1, pady=5, sticky='w')
+
+        # Create Print button
         self.print_button = ttk.Button(self.top, text="Print Shop Copy", command=self.print_shop_copy_callback, state=tk.DISABLED)
-        self.print_button.grid(row=1, column=1, padx=5, pady=5, sticky="w")
+        self.print_button.grid(row=2, column=0, padx=5, pady=5, sticky="ew")
         self.print_button.bind('<Return>', self.print_shop_copy_callback)
         
         # Pack the canvas and the scrollbar
-        self.canvas.grid(row=2, column=0, columnspan=2, sticky='nsew') # Changed from pack() to grid()
-        self.scrollbar.grid(row=2, column=2, sticky='ns') # Changed from pack() to grid()
+        self.canvas.grid(row=3, column=0, columnspan=3, sticky='nsew') # Changed from pack() to grid()
+        self.scrollbar.grid(row=3, column=3, sticky='nse') # Changed from pack() to grid()
 
         # Add mouse wheel scrolling
         self.canvas.bind_all("<MouseWheel>", self.on_mousewheel)
 
         # Create and pack the progress bar
-        self.progress_bar.grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky='ew')
+        self.progress_bar.grid(row=4, column=0, columnspan=4, padx=5, pady=5, sticky='ew')
 
         # Configure column and row weights so the canvas expands to fill space
-        self.top.grid_columnconfigure(0, weight=1)
-        self.top.grid_rowconfigure(2, weight=1)
+        self.top.grid_columnconfigure(2, weight=1)
+        self.top.grid_rowconfigure(3, weight=1)
 
     def display_shop_copy_data(self, shop_copy_data_table, compression_list, comp_code_chart):
         # Destroy existing labels and comboboxes
@@ -159,6 +168,13 @@ class ShopCopyForm:
         self.top.update_idletasks()
         self.top.geometry(self.top.geometry())
 
+#    def update_canvas_width(self):
+#        self.canvas.update_idletasks()  # Ensure the canvas's current state is updated
+#        content_width = self.canvas.bbox("all")[2]  # Get the width of all content in the canvas
+#        window_width = self.top.winfo_width()  # Get the current width of the window
+#        new_width = max(content_width, window_width)  # Choose the larger of content width or window width
+#        self.top.config(width=new_width)  # Update the canvas width
+
     def get_order_number(self):
         return self.customer_order_number_var.get()
 
@@ -225,7 +241,6 @@ class ShopCopyForm:
             error_msg = error_msg + "Please take shop copy to an engineer."
             messagebox.showerror("Error", error_msg)
         self.customer_order_field.focus_set()
-
 
     def toggle_print_checkboxes(self):
         # If any checkbox is unchecked, set all to checked, otherwise set all to unchecked
