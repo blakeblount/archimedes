@@ -93,7 +93,7 @@ class ShopCopy:
 
             return drawing_list
 
-    def query_customer_order_table(self, server, database, username, password):
+    def query_customer_order_table(self, server, database, username, password, include_shipped_items_var):
         # Open connection to SQL database, query table, put data in a list, close connection, return list
 
         # Create connection string
@@ -107,17 +107,29 @@ class ShopCopy:
 
         # Define SQL query
         order_num_padded = (' ' * (10 - len(str(self.order_number)))) + str(self.order_number)
-
-        sql_query = (f"SELECT coi.item AS item, "
-                     f"coi.co_line AS co_line, "
-                     f"coi.qty_ordered AS qty, "
-                     f"coi.stat AS status "
-                     f"FROM coitem_mst AS coi "
-                     f"JOIN item_mst AS i "
-                     f"ON coi.item = i.item "
-                     f"WHERE coi.co_num = '{order_num_padded}' "
-                     f"AND i.product_code != 'BOGUS' "
-                     f"ORDER BY coi.co_line;")
+      
+        if(include_shipped_items_var==True):
+            sql_query = (f"SELECT coi.item AS item, "
+                         f"coi.co_line AS co_line, "
+                         f"coi.qty_ordered AS qty "
+                         f"FROM coitem_mst AS coi "
+                         f"JOIN item_mst AS i "
+                         f"ON coi.item = i.item "
+                         f"WHERE coi.co_num = '{order_num_padded}' "
+                         f"AND i.product_code != 'BOGUS' "
+                         f"ORDER BY coi.co_line;")
+        else:
+            sql_query = (f"SELECT coi.item AS item, "
+                         f"coi.co_line AS co_line, "
+                         f"coi.qty_ordered AS qty, "
+                         f"coi.stat AS status "
+                         f"FROM coitem_mst AS coi "
+                         f"JOIN item_mst AS i "
+                         f"ON coi.item = i.item "
+                         f"WHERE coi.co_num = '{order_num_padded}' "
+                         f"AND i.product_code != 'BOGUS' "
+                         f"AND coi.stat NOT IN ('C', 'P') " 
+                         f"ORDER BY coi.co_line;")
 
         rows = []
         # Open connection and create cursor
@@ -141,7 +153,7 @@ class ShopCopy:
         with pyodbc.connect(drawing_conn_str) as drawing_conn:
             drawing_package = []
             for row in query_results:
-                part_number, line_item, quantity, status = row
+                part_number, line_item, quantity = row
                 part_number = part_number.rstrip(' ')
                 drawings = self.build_drawing_packages(part_number, line_item, quantity, drawing_conn)
                 drawing_package += drawings

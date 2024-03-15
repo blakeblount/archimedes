@@ -24,7 +24,7 @@ class ShopCopyManager:
         # Set number in the model
         self.shop_copy.set_order_number(order_number)
         
-        query_results = self.shop_copy.query_customer_order_table(self.config.get_server(), self.config.get_database(), self.config.get_user_id(), self.config.get_user_pwd())
+        query_results = self.shop_copy.query_customer_order_table(self.config.get_server(), self.config.get_database(), self.config.get_user_id(), self.config.get_user_pwd(), self.shop_copy_form.get_include_shipped_items_var())
         organized_shop_copy_data = self.shop_copy.organize_shop_copy_data(query_results)
 
         self.shop_copy.make_compression_list()

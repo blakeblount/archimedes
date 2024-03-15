@@ -38,6 +38,9 @@ class ShopCopyForm:
         self.comboboxes = []
         self.headers = []
 
+        # Initialize include shipped items var
+        self.include_shipped_items_var = tk.BooleanVar(value=False)
+
         # Initialize print checkbox list
         self.print_checkboxes = []
         self.print_vars = []
@@ -67,7 +70,7 @@ class ShopCopyForm:
 
         # Create Shipped Items Checkbox/Label
         ttk.Label(self.top, text="Include shipped items?").grid(row=1, column=1, padx=1, pady=5, sticky='w')
-        self.include_shipped_items_var = tk.BooleanVar(value=False)
+        #self.include_shipped_items_var = tk.BooleanVar(value=False)
         self.include_shipped_items_checkbox = ttk.Checkbutton(self.top, variable=self.include_shipped_items_var)
         self.include_shipped_items_checkbox.grid(row=1, column=2, padx=1, pady=5, sticky='w')
 
@@ -168,12 +171,8 @@ class ShopCopyForm:
         self.top.update_idletasks()
         self.top.geometry(self.top.geometry())
 
-#    def update_canvas_width(self):
-#        self.canvas.update_idletasks()  # Ensure the canvas's current state is updated
-#        content_width = self.canvas.bbox("all")[2]  # Get the width of all content in the canvas
-#        window_width = self.top.winfo_width()  # Get the current width of the window
-#        new_width = max(content_width, window_width)  # Choose the larger of content width or window width
-#        self.top.config(width=new_width)  # Update the canvas width
+    def get_include_shipped_items_var(self):
+        return self.include_shipped_items_var.get()
 
     def get_order_number(self):
         return self.customer_order_number_var.get()
