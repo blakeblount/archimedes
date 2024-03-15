@@ -121,8 +121,7 @@ class ShopCopy:
         else:
             sql_query = (f"SELECT coi.item AS item, "
                          f"coi.co_line AS co_line, "
-                         f"coi.qty_ordered AS qty, "
-                         f"coi.stat AS status "
+                         f"coi.qty_ordered AS qty "
                          f"FROM coitem_mst AS coi "
                          f"JOIN item_mst AS i "
                          f"ON coi.item = i.item "
@@ -152,11 +151,12 @@ class ShopCopy:
 
         with pyodbc.connect(drawing_conn_str) as drawing_conn:
             drawing_package = []
-            for row in query_results:
-                part_number, line_item, quantity = row
-                part_number = part_number.rstrip(' ')
-                drawings = self.build_drawing_packages(part_number, line_item, quantity, drawing_conn)
-                drawing_package += drawings
+            if len(query_results) != 0:
+                for row in query_results:
+                    part_number, line_item, quantity = row
+                    part_number = part_number.rstrip(' ')
+                    drawings = self.build_drawing_packages(part_number, line_item, quantity, drawing_conn)
+                    drawing_package += drawings
 
         return drawing_package
         
