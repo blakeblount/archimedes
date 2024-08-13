@@ -76,9 +76,13 @@ class ShopCopy:
         rows = cursor.fetchall()
 
         root_drawing = [part_num, line_num, qty]
+        drawing_database_error = False
+
+        if len(rows) == 0:
+            drawing_database_error = True
 
         if len(rows) == 1:
-            return [root_drawing]
+            return [root_drawing], drawing_database_error
         else:
             drawing_list = [root_drawing]
             
@@ -88,10 +92,10 @@ class ShopCopy:
                 else:
                     sub_part_num = row[1]
                     sub_qty = int(row[2]) * qty
-                    sub_drawing = self.build_drawing_packages(sub_part_num, line_num, sub_qty, conn)
+                    sub_drawing, drawing_database_error = self.build_drawing_packages(sub_part_num, line_num, sub_qty, conn)
                     drawing_list += sub_drawing
 
-            return drawing_list
+            return drawing_list, drawing_database_error
 
     def query_customer_order_table(self, server, database, username, password, include_shipped_items_var):
         # Open connection to SQL database, query table, put data in a list, close connection, return list
@@ -107,28 +111,66 @@ class ShopCopy:
 
         # Define SQL query
         order_num_padded = (' ' * (10 - len(str(self.order_number)))) + str(self.order_number)
+
+        sql_query = f"""
+        SELECT
+            coi.item AS item,
+            coi.co_line AS co_line,
+            coi.qty_ordered AS qty,
+            (CASE
+                WHEN (c.cust_type LIKE 'INT%' OR co.Uf_wmShipType = 'International') AND c.cust_type LIKE '%OEM%' THEN 'INTERNATIONAL OEM'
+                WHEN c.cust_type LIKE 'INT%' OR co.Uf_wmShipType = 'International' THEN 'INTERNATIONAL'
+                WHEN c.cust_type LIKE '%OEM' THEN 'OEM'
+                ELSE ''
+            END) AS intloem,
+            CASE WHEN EXISTS
+                (
+                SELECT *
+                FROM coitem_mst AS coi2
+                WHERE
+                    coi.co_num = '{order_num_padded}'
+                    AND
+                    coi.qty_ordered - coi.qty_shipped > 0
+                    AND
+                    coi.stat <> 'O'
+                )
+            THEN CAST(1 AS BIT)
+            ELSE CAST(0 AS BIT) END AS NotShippedNotOrdered,
+            CASE
+                WHEN (coi.qty_ordered - coi.qty_shipped) > 0 THEN CAST(0 AS BIT)
+                ELSE CAST(1 AS BIT) END AS shipped
+
+        FROM coitem_mst AS coi
+        JOIN item_mst AS i ON coi.item = i.item
+        JOIN co_mst AS co ON coi.co_num = co.co_num
+        JOIN customer_mst AS c ON co.cust_num = c.cust_num AND c.cust_seq = 0
+        JOIN custaddr_mst as ca ON c.cust_num = ca.cust_num AND c.cust_seq = ca.cust_seq
+
+        WHERE coi.co_num = '{order_num_padded}' AND i.product_code != 'BOGUS'
+        ORDER BY coi.co_line;
+        """
       
-        if(include_shipped_items_var==True):
-            sql_query = (f"SELECT coi.item AS item, "
-                         f"coi.co_line AS co_line, "
-                         f"coi.qty_ordered AS qty "
-                         f"FROM coitem_mst AS coi "
-                         f"JOIN item_mst AS i "
-                         f"ON coi.item = i.item "
-                         f"WHERE coi.co_num = '{order_num_padded}' "
-                         f"AND i.product_code != 'BOGUS' "
-                         f"ORDER BY coi.co_line;")
-        else:
-            sql_query = (f"SELECT coi.item AS item, "
-                         f"coi.co_line AS co_line, "
-                         f"coi.qty_ordered AS qty "
-                         f"FROM coitem_mst AS coi "
-                         f"JOIN item_mst AS i "
-                         f"ON coi.item = i.item "
-                         f"WHERE coi.co_num = '{order_num_padded}' "
-                         f"AND i.product_code != 'BOGUS' "
-                         f"AND coi.stat NOT IN ('C', 'P') " 
-                         f"ORDER BY coi.co_line;")
+#        if(include_shipped_items_var==True):
+#            sql_query = (f"SELECT coi.item AS item, "
+#                         f"coi.co_line AS co_line, "
+#                         f"coi.qty_ordered AS qty "
+#                         f"FROM coitem_mst AS coi "
+#                         f"JOIN item_mst AS i "
+#                         f"ON coi.item = i.item "
+#                         f"WHERE coi.co_num = '{order_num_padded}' "
+#                         f"AND i.product_code != 'BOGUS' "
+#                         f"ORDER BY coi.co_line;")
+#        else:
+#            sql_query = (f"SELECT coi.item AS item, "
+#                         f"coi.co_line AS co_line, "
+#                         f"coi.qty_ordered AS qty "
+#                         f"FROM coitem_mst AS coi "
+#                         f"JOIN item_mst AS i "
+#                         f"ON coi.item = i.item "
+#                         f"WHERE coi.co_num = '{order_num_padded}' "
+#                         f"AND i.product_code != 'BOGUS' "
+#                         f"AND coi.stat NOT IN ('C', 'P') " 
+#                         f"ORDER BY coi.co_line;")
 
         rows = []
         # Open connection and create cursor
@@ -145,20 +187,24 @@ class ShopCopy:
 
         # Convert rows to list and return
         query_results = [list(row) for row in rows]
+        print(query_results)
 
         #drawing_conn_str = (r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};"r"DBQ=C:\\Users\\bblount\\Documents\\Drawing Packages.accdb;") 
         drawing_conn_str = (r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};"r"DBQ=\\sefcordata\shared\Engineering\Archimedes\Drawing Packages.accdb;") 
 
         with pyodbc.connect(drawing_conn_str) as drawing_conn:
             drawing_package = []
+            drawing_missing_error = False
             if len(query_results) != 0:
                 for row in query_results:
-                    part_number, line_item, quantity = row
+                    part_number, line_item, quantity, intl_oem, not_shipped_not_ordered, shipped = row
                     part_number = part_number.rstrip(' ')
-                    drawings = self.build_drawing_packages(part_number, line_item, quantity, drawing_conn)
+                    drawings, drawing_database_error = self.build_drawing_packages(part_number, line_item, quantity, drawing_conn)
                     drawing_package += drawings
+                    if drawing_database_error is True:
+                        drawing_missing_error = True
 
-        return drawing_package
+        return drawing_package, drawing_missing_error
         
     def organize_shop_copy_data(self, query_results):
         # This method acquires the data in list form, and reorganizes it so that duplicate parts are combined.

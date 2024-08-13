@@ -241,6 +241,9 @@ class ShopCopyForm:
             messagebox.showerror("Error", error_msg)
         self.customer_order_field.focus_set()
 
+    def display_missing_drawing_error(self):
+        messagebox.showerror("Error", "Some drawings are not in the drawing database. Double check to make sure all drawings are in the stack.")
+
     def toggle_print_checkboxes(self):
         # If any checkbox is unchecked, set all to checked, otherwise set all to unchecked
         any_unchecked = any(not var.get() for var in self.print_vars)
