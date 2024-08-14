@@ -241,8 +241,19 @@ class ShopCopyForm:
             messagebox.showerror("Error", error_msg)
         self.customer_order_field.focus_set()
 
-    def display_missing_drawing_error(self):
-        messagebox.showerror("Error", "Some drawings are not in the drawing database. Double check to make sure all drawings are in the stack.")
+    def display_organize_error_message(self, drawing_missing_list, not_shipped_not_ordered_list):
+        if drawing_missing_list:
+            error_msg = "The following drawings or their subdrawings are not properly entered in the drawing database:\n"
+            for drawing in drawing_missing_list:
+                error_msg = error_msg + f"- {drawing}\n"
+            error_msg = error_msg + "Please take shop copy to an engineer."
+        if not_shipped_not_ordered_list:
+            if error_msg:
+                error_msg += "\n"
+            error_msg = "The following parts not marked as either shipped or ordered within SyteLine. Please review:\n"
+            for part in not_shipped_not_ordered_list:
+                error_msg += f"- {part}\n"
+        messagebox.showerror("Error", error_msg)
 
     def toggle_print_checkboxes(self):
         # If any checkbox is unchecked, set all to checked, otherwise set all to unchecked

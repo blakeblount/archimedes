@@ -24,13 +24,13 @@ class ShopCopyManager:
         # Set number in the model
         self.shop_copy.set_order_number(order_number)
         
-        query_results, drawing_missing_error = self.shop_copy.query_customer_order_table(self.config.get_server(), self.config.get_database(), self.config.get_user_id(), self.config.get_user_pwd(), self.shop_copy_form.get_include_shipped_items_var())
+        query_results, drawing_missing_list, not_shipped_not_ordered_list = self.shop_copy.query_customer_order_table(self.config.get_server(), self.config.get_database(), self.config.get_user_id(), self.config.get_user_pwd(), self.shop_copy_form.get_include_shipped_items_var())
         organized_shop_copy_data = self.shop_copy.organize_shop_copy_data(query_results)
 
         self.shop_copy.make_compression_list()
 
-        if drawing_missing_error is True:
-            self.shop_copy_form.display_missing_drawing_error()
+        if drawing_missing_list or not_shipped_not_ordered_list:
+            self.shop_copy_form.display_organize_error_message(drawing_missing_list, not_shipped_not_ordered_list)
 
         # Update shop copy form
         self.shop_copy_form.display_shop_copy_data(organized_shop_copy_data, self.shop_copy.get_compression_list(), self.shop_copy.get_comp_code_chart())

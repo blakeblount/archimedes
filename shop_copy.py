@@ -187,24 +187,29 @@ class ShopCopy:
 
         # Convert rows to list and return
         query_results = [list(row) for row in rows]
-        print(query_results)
 
         #drawing_conn_str = (r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};"r"DBQ=C:\\Users\\bblount\\Documents\\Drawing Packages.accdb;") 
         drawing_conn_str = (r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};"r"DBQ=\\sefcordata\shared\Engineering\Archimedes\Drawing Packages.accdb;") 
 
         with pyodbc.connect(drawing_conn_str) as drawing_conn:
             drawing_package = []
-            drawing_missing_error = False
+            drawing_missing_list = []
+            not_shipped_not_ordered_list =[]
             if len(query_results) != 0:
                 for row in query_results:
+                    print(row)
                     part_number, line_item, quantity, intl_oem, not_shipped_not_ordered, shipped = row
                     part_number = part_number.rstrip(' ')
-                    drawings, drawing_database_error = self.build_drawing_packages(part_number, line_item, quantity, drawing_conn)
-                    drawing_package += drawings
-                    if drawing_database_error is True:
-                        drawing_missing_error = True
 
-        return drawing_package, drawing_missing_error
+                    if((include_shipped_items_var is False and shipped is False) or include_shipped_items_var is True):
+                        drawings, drawing_database_error = self.build_drawing_packages(part_number, line_item, quantity, drawing_conn)
+                        drawing_package += drawings
+                        if drawing_database_error is True:
+                            drawing_missing_list.append(part_number) 
+                        if not_shipped_not_ordered is True:
+                            not_shipped_not_ordered_list.append(part_number)
+
+        return drawing_package, drawing_missing_list, not_shipped_not_ordered_list
         
     def organize_shop_copy_data(self, query_results):
         # This method acquires the data in list form, and reorganizes it so that duplicate parts are combined.
