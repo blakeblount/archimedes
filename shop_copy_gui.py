@@ -118,7 +118,7 @@ class ShopCopyForm:
 
         # Display table headers
         #headers = ["Print?", "Part Number", "Line Item(s)", "Quantity"]
-        headers = ["Part Number", "Line Item(s)", "Quantity"]
+        headers = ["Part Number", "Line Item(s)", "Quantity", "Intl/OEM"]
         if compression_list is not None:
             headers.append("Cable Info")
             is_list = any(isinstance(v, list) and len(v) == 2 for v in compression_list.values())
@@ -242,8 +242,9 @@ class ShopCopyForm:
         self.customer_order_field.focus_set()
 
     def display_organize_error_message(self, drawing_missing_list, not_shipped_not_ordered_list):
+        error_msg = ''
         if drawing_missing_list:
-            error_msg = "The following drawings or their subdrawings are not properly entered in the drawing database:\n"
+            error_msg = "The following parts or their dependencies are not properly entered in the drawing database:\n"
             for drawing in drawing_missing_list:
                 error_msg = error_msg + f"- {drawing}\n"
             error_msg = error_msg + "Please take shop copy to an engineer."
@@ -254,6 +255,7 @@ class ShopCopyForm:
             for part in not_shipped_not_ordered_list:
                 error_msg += f"- {part}\n"
         messagebox.showerror("Error", error_msg)
+        self.print_button.focus_set()
 
     def toggle_print_checkboxes(self):
         # If any checkbox is unchecked, set all to checked, otherwise set all to unchecked

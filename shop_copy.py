@@ -65,7 +65,7 @@ class ShopCopy:
         # Gets the compression code chart
         return self.comp_code_chart
     
-    def build_drawing_packages(self, part_num, line_num, qty, conn):
+    def build_drawing_packages(self, part_num, line_num, qty, intloem, conn):
         query = f"""
             SELECT *
             FROM [Drawing Packages]
@@ -75,7 +75,7 @@ class ShopCopy:
         cursor = conn.execute(query)
         rows = cursor.fetchall()
 
-        root_drawing = [part_num, line_num, qty]
+        root_drawing = [part_num, line_num, qty, intloem]
         drawing_database_error = False
 
         if len(rows) == 0:
@@ -91,8 +91,9 @@ class ShopCopy:
                     continue
                 else:
                     sub_part_num = row[1]
+                    print(row) #can be deleted
                     sub_qty = int(row[2]) * qty
-                    sub_drawing, drawing_database_error = self.build_drawing_packages(sub_part_num, line_num, sub_qty, conn)
+                    sub_drawing, drawing_database_error = self.build_drawing_packages(sub_part_num, line_num, sub_qty, intloem, conn)
                     drawing_list += sub_drawing
 
             return drawing_list, drawing_database_error
@@ -197,12 +198,11 @@ class ShopCopy:
             not_shipped_not_ordered_list =[]
             if len(query_results) != 0:
                 for row in query_results:
-                    print(row)
-                    part_number, line_item, quantity, intl_oem, not_shipped_not_ordered, shipped = row
+                    part_number, line_item, quantity, intloem, not_shipped_not_ordered, shipped = row
                     part_number = part_number.rstrip(' ')
 
                     if((include_shipped_items_var is False and shipped is False) or include_shipped_items_var is True):
-                        drawings, drawing_database_error = self.build_drawing_packages(part_number, line_item, quantity, drawing_conn)
+                        drawings, drawing_database_error = self.build_drawing_packages(part_number, line_item, quantity, intloem, drawing_conn)
                         drawing_package += drawings
                         if drawing_database_error is True:
                             drawing_missing_list.append(part_number) 
@@ -220,16 +220,18 @@ class ShopCopy:
         # For each part number, check to see if it's in the list already. If it is, append its line and quantity
         # data to the respective dictionary entries. If it isn't, create a new dictionary entry for the part number.
         for row in query_results:
-            part_number, line_item, quantity = row
+            part_number, line_item, quantity, intloem = row
             if quantity == 0:
                 continue
             if part_number in part_number_dict:
                 part_number_dict[part_number]['line_items'].append(str(line_item))
                 part_number_dict[part_number]['quantities'].append(str(int(quantity)))
+                part_number_dict[part_number]['intloem'].append(intloem)
             else:
                 part_number_dict[part_number] = {
                     'line_items': [str(line_item)],
-                    'quantities': [str(int(quantity))]
+                    'quantities': [str(int(quantity))],
+                    'intloem': [intloem]
                 }
 
         # Convert to a list for ease of displaying in the UI and using in the print_shop_copy method
@@ -237,7 +239,13 @@ class ShopCopy:
         for part_number, data in part_number_dict.items():
             line_items = ",".join(data['line_items'])
             quantities = ",".join(data['quantities'])
-            shop_copy_output_table.append([part_number, line_items, quantities])
+            if 'INTERNATIONAL OEM' in data['intloem'] or ('INTERNATIONAL' in data['intloem'] and 'OEM' in data['intloem']):
+                intloem = 'INTERNATIONAL OEM'
+            elif 'INTERNATIONAL' in data['intloem']:
+                intloem = 'INTERNATIONAL'
+            elif 'OEM' in data['intloem']:
+                intloem = 'OEM'
+            shop_copy_output_table.append([part_number, line_items, quantities, intloem])
             self.order_data_table = shop_copy_output_table
 
         return shop_copy_output_table
@@ -381,6 +389,7 @@ class ShopCopy:
             job_text = self.order_number
             item_text = row[1]
             qty_text = row[2]
+            intloem_text = row[3]
 
            # quantities = qty_text.split(",")
            # if "0" in quantities:
@@ -567,16 +576,25 @@ class ShopCopy:
                             img.save(f, format="PNG")
                             modified_image_paths.append(f.name)
                     except Exception as error:
-                        #print(f'Unable to print blank {f.name} to stack.\nError: {error}')
+                        print(f'Unable to print blank {f.name} to stack.\nError: {error}')
                         pass
                     self.unable_to_print_drawing_list.append(drawing_filename)
-                    #print(f"OCR failed for {drawing_filename}.")
+                    print(f"OCR failed for {drawing_filename}.")
                     continue
 
                 # Draw text on the shop copy drawing
                 draw.text((job_x, job_y), job_text, font=font, fill=(0, 0, 0))
                 draw.text((item_x, item_y), item_text, font=font, fill=(0, 0, 0))
                 draw.text((qty_x, qty_y), qty_text, font=font, fill=(0, 0, 0))
+
+                if intloem_text:
+                    font = ImageFont.truetype("arial.ttf", size=70)
+                    if intloem_text == 'OEM':
+                        draw.text((item_x - 500, item_y), intloem_text, font=font, fill=(0, 0, 0))
+                    elif intloem_text == 'INTERNATIONAL':
+                        draw.text((item_x - 900, item_y), intloem_text, font=font, fill=(0, 0, 0))
+                    elif intloem_text == 'INTERNATIONAL OEM':
+                        draw.text((item_x - 1000, item_y), intloem_text, font=font, fill=(0, 0, 0))
 
                 if row[0] in compression_list:
                     # Create a new image with transparent background to store the rotated text.
@@ -606,7 +624,7 @@ class ShopCopy:
                     img = result_img.convert('RGB')
 
             except Exception as e:
-                #print(f"Failed to process {drawing_filename}. Inserting blank drawing. Error: {str(e)}")
+                print(f"Failed to process {drawing_filename}. Inserting blank drawing. Error: {str(e)}")
                 pass
 
             # The below is a less-than-ideal way of saving but I was running into an issue saving directly as a PDF.
