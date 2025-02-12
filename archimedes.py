@@ -11,7 +11,9 @@ from config import Config
 #import pattern_receipt_manager as PRM
 
 from shop_copy_gui import ShopCopyForm
+from engineering_change_order_gui import EngineeringChangeOrderForm
 import shop_copy_manager as SCM
+import engineering_change_order_manager as ECOM
 
 class ArchimedesManager:
     def __init__(self):
@@ -27,9 +29,8 @@ class ArchimedesManager:
     def initialize_shop_copy_tool(self, event=None):
         shop_copy_manager = SCM.ShopCopyManager(self.archimedes_gui.root, ShopCopyForm, self.config)
 
-#    def initialize_tasks_tool(self):
-#        self.archimedes_gui.open_tasks_form()
-
+    def initialize_engineering_change_order_tool(self):
+        engineering_change_order_manager = ECOM.EngineeringChangeOrderManager(self.archimedes_gui.root, EngineeringChangeOrderForm, self.config)
 
 if __name__ == "__main__":
     app = ArchimedesManager()
